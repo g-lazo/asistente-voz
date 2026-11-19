@@ -515,7 +515,7 @@ void main() {
       final big = 'agrega ${'palabra ' * 100000}mañana';
       final sw = Stopwatch()..start();
       final r = parseCommand(big, thu)!;
-      expect(r.title.length, 200);
+      expect(r.title.length, 199); // cut at 200 lands on a space, trimmed
       expect(r.dueDate, DateTime(2026, 11, 20));
       expect(sw.elapsedMilliseconds, lessThan(5000));
       final blank = parseCommand(' ' * 500000, thu);

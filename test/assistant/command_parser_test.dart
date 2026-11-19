@@ -50,4 +50,22 @@ void main() {
     expect(parseCommand('agrega ${'a' * 250}', today)!.title.length, 200);
     expect(parseCommand('  agrega comprar leche ', today)!.heard, 'agrega comprar leche');
   });
+
+  test('rulings after the attack', () {
+    expectTask('agrega despertar a las siete de la mañana', 'Despertar a las siete de la mañana');
+    expectTask('agrega correr esta mañana', 'Correr esta mañana');
+    expectTask('agrega ir al mercado por la mañana', 'Ir al mercado por la mañana');
+    expectTask('agrega llamar al doctor a las 8 de la manana', 'Llamar al doctor a las 8 de la manana');
+    expectTask('agrega pagar la luz mañana', 'Pagar la luz', DateTime(2026, 11, 20));
+    expectTask('agrega pagar la luz para mañana', 'Pagar la luz', DateTime(2026, 11, 20));
+    expectTask('agrega pagar la luz pasado mañana', 'Pagar la luz', DateTime(2026, 11, 21));
+    expectTask('este 25 de noviembre ir al dentista', 'Ir al dentista', DateTime(2026, 11, 25));
+    expectTask('agrega ir al dentista este 25 de noviembre', 'Ir al dentista', DateTime(2026, 11, 25));
+    final spaced = parseCommand('agrega ${'a' * 199} b', today)!.title;
+    expect(spaced, spaced.trimRight());
+    expect(spaced.length, lessThanOrEqualTo(200));
+    final emoji = parseCommand('agrega ${'a' * 199}\u{1F600}', today)!.title;
+    expect(emoji.length, lessThanOrEqualTo(200));
+    expect(emoji.codeUnitAt(emoji.length - 1) & 0xFC00, isNot(0xD800));
+  });
 }

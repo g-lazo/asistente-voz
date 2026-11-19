@@ -60,6 +60,8 @@ const _months = {
   'diciembre': 12,
 };
 
+const _morningArticles = {'la', 'esta'};
+
 const _trailingFillers = {'para', 'de', 'el', 'este'};
 
 // Longest date phrase: "para el 25 de noviembre".
@@ -111,7 +113,7 @@ DateTime? _parseDatePhrase(List<String> phrase, DateTime today) {
     return daysAhead(ahead == 0 ? 7 : ahead);
   }
 
-  if (w.isNotEmpty && w[0] == 'el') w = w.sublist(1);
+  if (w.isNotEmpty && (w[0] == 'el' || w[0] == 'este')) w = w.sublist(1);
   if (w.length == 3 && w[1] == 'de' && _dayNumber.hasMatch(w[0])) {
     final day = int.parse(w[0]);
     final month = _months[w[2]];
@@ -157,7 +159,15 @@ ParsedTask? parseCommand(String transcript, DateTime today) {
   // Very end first, then very start; longest phrase first so the optional
   // "para" and "el" are consumed with the date.
   for (var len = maxLen; len >= 1 && due == null; len--) {
-    final date = _parseDatePhrase(folded.sublist(folded.length - len), today);
+    final phrase = folded.sublist(folded.length - len);
+    // "de la manana" / "esta manana" is the morning, not tomorrow.
+    if (phrase.length == 1 &&
+        phrase[0] == 'manana' &&
+        folded.length > 1 &&
+        _morningArticles.contains(folded[folded.length - 2])) {
+      continue;
+    }
+    final date = _parseDatePhrase(phrase, today);
     if (date != null) {
       due = date;
       words = words.sublist(0, words.length - len);
@@ -185,6 +195,10 @@ ParsedTask? parseCommand(String transcript, DateTime today) {
   title = title[0].toUpperCase() + title.substring(1);
   if (title.length > _maxTitleLength) {
     title = title.substring(0, _maxTitleLength);
+    // Never leave half of a surrogate pair, nor a space where the cut landed.
+    final last = title.codeUnitAt(title.length - 1);
+    if (last & 0xFC00 == 0xD800) title = title.substring(0, title.length - 1);
+    title = title.trimRight();
   }
   return ParsedTask(title: title, heard: heard, dueDate: due);
 }
