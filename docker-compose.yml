@@ -1,0 +1,43 @@
+# Variables default to this host's values so plain "docker compose exec dev ..." also works;
+# the Makefile exports the real ones.
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
+    image: asistente-voz-dev
+    command: sleep infinity
+    init: true
+    working_dir: /work
+    ports:
+      - "127.0.0.1:8080:8080"
+    devices:
+      - /dev/kvm
+    group_add:
+      - "${KVM_GID:-991}"
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+      XAUTHORITY: /tmp/.docker.xauth
+      PULSE_SERVER: unix:${XDG_RUNTIME_DIR:-/run/user/1000}/pulse/native
+      PULSE_COOKIE: /tmp/pulse-cookie
+      # /run/user/1000 inside the container is root-owned (pulse mount); the emulator needs a writable one.
+      XDG_RUNTIME_DIR: /tmp/xdg
+    volumes:
+      - .:/work
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./.docker.xauth:/tmp/.docker.xauth
+      - ${XDG_RUNTIME_DIR:-/run/user/1000}/pulse/native:${XDG_RUNTIME_DIR:-/run/user/1000}/pulse/native
+      - ${HOME}/.config/pulse/cookie:/tmp/pulse-cookie:ro
+      - pub-cache:/home/dev/.pub-cache
+      - gradle:/home/dev/.gradle
+      - android:/home/dev/.android
+      - config:/home/dev/.config
+
+volumes:
+  pub-cache:
+  gradle:
+  android:
+  config:

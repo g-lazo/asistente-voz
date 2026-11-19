@@ -1,0 +1,6 @@
+.git
+.superpowers/
+.docker.xauth
+build/
+.dart_tool/
+docs/
