@@ -153,8 +153,10 @@ This is a pure function: transcript and today's date in, either a task (title an
    - "el 25 de noviembre": that day this year, or next year if it has already passed. The day number
      arrives as digits; accepting it spelled out ("veinticinco") is a nice-to-have.
    - An optional "para" or "este" in front of the date phrase is removed with it ("para mañana",
-     "este viernes").
-   - Times of day are not supported. "a las cinco" simply stays in the title.
+     "este viernes", "este 25 de noviembre"), wherever the date phrase is allowed to appear.
+   - Times of day are not supported. "a las cinco" simply stays in the title. The same goes for
+     "mañana" meaning the morning: right after "la" or "esta" ("a las siete de la mañana",
+     "por la mañana", "esta mañana") it is not a date and stays in the title.
 4. What remains is the title: trimmed, with its first letter capitalized. Maximum 200 characters.
 5. With no trigger word, the whole phrase (minus the date) is the title. This is deliberate: the demo
    must not fail because someone forgot to say "agrega".
