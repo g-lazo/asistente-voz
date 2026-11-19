@@ -37,7 +37,7 @@ RUN curl -fsSL -o /tmp/flutter.tar.xz "${FLUTTER_URL}" \
     && chown -R dev:dev /opt/flutter
 
 # Node 22 LTS, checksum verified against the published SHASUMS256.txt value.
-RUN curl -fsSL -o /tmp/node.tar.xz "https://nodejs.org/dist/latest-v22.x/node-v${NODE_VERSION}-linux-x64.tar.xz" \
+RUN curl -fsSL -o /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" \
     && echo "${NODE_SHA256}  /tmp/node.tar.xz" | sha256sum -c - \
     && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
     && rm /tmp/node.tar.xz
