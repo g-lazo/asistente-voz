@@ -1,0 +1,160 @@
+<style>
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; }
+  .phone { width:210px; height:400px; border:9px solid #1f2430; border-radius:30px; background:#fff; margin:10px auto 4px;
+           position:relative; overflow:hidden; font-family:system-ui,sans-serif; color:#1f2430; }
+  .bar { height:20px; font-size:9px; display:flex; justify-content:space-between; padding:4px 12px 0; color:#555; }
+  .top { padding:4px 12px 6px; font-weight:700; font-size:15px; }
+  .tabs { display:flex; font-size:10px; border-bottom:1px solid #e3e6ea; }
+  .tabs div { flex:1; text-align:center; padding:5px 0; color:#6b7280; }
+  .tabs .act { color:#3b6fd8; border-bottom:2px solid #3b6fd8; font-weight:600; }
+  .bubble { max-width:80%; padding:6px 9px; border-radius:11px; font-size:11px; margin:5px 10px; }
+  .me { background:#3b6fd8; color:#fff; margin-left:auto; border-bottom-right-radius:3px; }
+  .bot { background:#eef0f3; border-bottom-left-radius:3px; }
+  .card2 { margin:4px 10px; border:1px solid #d6dcea; border-radius:10px; padding:8px; font-size:11px; background:#fbfcff; }
+  .card2 b { display:block; font-size:12px; margin-bottom:3px; }
+  .undo { color:#3b6fd8; font-weight:600; font-size:10px; margin-top:4px; }
+  .chips { display:flex; flex-wrap:wrap; gap:5px; padding:6px 10px; }
+  .chip { border:1px solid #c9d3ea; color:#3b6fd8; border-radius:14px; padding:4px 8px; font-size:10px; }
+  .sheet { position:absolute; left:0; right:0; bottom:0; background:#f7f8fa; border-top:1px solid #e3e6ea;
+           padding:10px 12px 14px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .mic { width:50px; height:50px; border-radius:50%; background:#3b6fd8; color:#fff; display:flex; align-items:center;
+         justify-content:center; font-size:10px; font-weight:700; }
+  .mic.hold { box-shadow:0 0 0 7px rgba(59,111,216,.2), 0 0 0 14px rgba(59,111,216,.08); }
+  .hint { font-size:9px; color:#6b7280; text-align:center; }
+  .wave { display:flex; gap:3px; align-items:center; height:26px; }
+  .wave span { width:4px; background:#3b6fd8; border-radius:2px; }
+  .live { font-size:11px; text-align:center; font-style:italic; }
+  .spk { font-size:9px; color:#3b6fd8; margin:0 10px; }
+  .date { background:#fff3d6; border-radius:3px; padding:0 2px; }
+  .from { font-size:11px; color:#6b7280; margin-top:2px; }
+  .cost { font-size:11px; margin-top:4px; }
+</style>
+
+<h2>Ideas de otras apps para la opción B</h2>
+<p class="subtitle">Son patrones que usan apps conocidas, no su diseño ni su marca. Marca todas las que quieras meter; puedes elegir varias.</p>
+
+<div class="options grid" data-multiselect>
+
+  <div class="option" data-choice="confirmacion" onclick="toggleSelect(this)">
+    <div class="letter">1</div>
+    <div class="content">
+      <h3>Tarjeta de confirmación con Deshacer</h3>
+      <p class="from">Como Google Assistant y Siri</p>
+      <p>En vez de solo "Listo", el asistente muestra la tarea como tarjeta, con un botón para deshacer si entendió mal.</p>
+      <div class="phone">
+        <div class="bar"><span>9:41</span><span>Gustavo</span></div>
+        <div class="top">Asistente</div>
+        <div class="tabs"><div class="act">Asistente</div><div>Mis tareas (4)</div></div>
+        <div class="bubble me">agrega comprar leche</div>
+        <div class="bubble bot">Listo, la agregué:</div>
+        <div class="card2"><b>Comprar leche</b>Pendiente<div class="undo">DESHACER</div></div>
+        <div class="sheet"><div class="mic">MIC</div><div class="hint">Toca y habla</div></div>
+      </div>
+      <p class="cost">Trabajo extra: poco.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="sugerencias" onclick="toggleSelect(this)">
+    <div class="letter">2</div>
+    <div class="content">
+      <h3>Sugerencias para empezar</h3>
+      <p class="from">Como Google Assistant</p>
+      <p>Cuando el chat está vacío, botones con ejemplos de qué decir. Tocarlos agrega la tarea sin hablar.</p>
+      <div class="phone">
+        <div class="bar"><span>9:41</span><span>Gustavo</span></div>
+        <div class="top">Asistente</div>
+        <div class="tabs"><div class="act">Asistente</div><div>Mis tareas (0)</div></div>
+        <div class="bubble bot">Hola, Gustavo. Dime qué quieres anotar.</div>
+        <div class="chips">
+          <div class="chip">"agrega comprar leche"</div>
+          <div class="chip">"anota pagar el internet"</div>
+          <div class="chip">"recuérdame llamar al dentista"</div>
+        </div>
+        <div class="sheet"><div class="mic">MIC</div><div class="hint">Toca y habla</div></div>
+      </div>
+      <p class="cost">Trabajo extra: poco.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="onda" onclick="toggleSelect(this)">
+    <div class="letter">3</div>
+    <div class="content">
+      <h3>Onda animada y texto en vivo</h3>
+      <p class="from">Como Siri y el modo de voz de ChatGPT</p>
+      <p>Mientras hablas, una onda se mueve con tu voz y el texto aparece palabra por palabra.</p>
+      <div class="phone">
+        <div class="bar"><span>9:41</span><span>Gustavo</span></div>
+        <div class="top">Asistente</div>
+        <div class="tabs"><div class="act">Asistente</div><div>Mis tareas (3)</div></div>
+        <div class="bubble me">agrega llamar al dentista</div>
+        <div class="bubble bot">Listo, agregué "Llamar al dentista".</div>
+        <div class="sheet">
+          <div class="wave"><span style="height:8px"></span><span style="height:18px"></span><span style="height:26px"></span><span style="height:14px"></span><span style="height:22px"></span><span style="height:10px"></span><span style="height:20px"></span><span style="height:6px"></span></div>
+          <div class="live">"agrega comprar le..."</div>
+          <div class="hint">Escuchando, toca para terminar</div>
+        </div>
+      </div>
+      <p class="cost">Trabajo extra: poco.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="mantener" onclick="toggleSelect(this)">
+    <div class="letter">4</div>
+    <div class="content">
+      <h3>Mantener presionado para hablar</h3>
+      <p class="from">Como las notas de voz de WhatsApp</p>
+      <p>Hablas mientras mantienes el botón y al soltar se envía. Deslizar para cancelar. La alternativa es tocar una vez para empezar y otra para terminar.</p>
+      <div class="phone">
+        <div class="bar"><span>9:41</span><span>Gustavo</span></div>
+        <div class="top">Asistente</div>
+        <div class="tabs"><div class="act">Asistente</div><div>Mis tareas (3)</div></div>
+        <div class="bubble me">agrega llamar al dentista</div>
+        <div class="bubble bot">Listo, agregué "Llamar al dentista".</div>
+        <div class="sheet">
+          <div class="live">"agrega comprar leche"</div>
+          <div class="mic hold">MIC</div>
+          <div class="hint">Suelta para enviar &middot; desliza a la izquierda para cancelar</div>
+        </div>
+      </div>
+      <p class="cost">Trabajo extra: poco. En el emulador se usa con el mouse.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="voz" onclick="toggleSelect(this)">
+    <div class="letter">5</div>
+    <div class="content">
+      <h3>Responde en voz alta</h3>
+      <p class="from">Como Alexa y Siri</p>
+      <p>El asistente lee su respuesta: "Listo, agregué comprar leche". Se puede silenciar.</p>
+      <div class="phone">
+        <div class="bar"><span>9:41</span><span>Gustavo</span></div>
+        <div class="top">Asistente</div>
+        <div class="tabs"><div class="act">Asistente</div><div>Mis tareas (4)</div></div>
+        <div class="bubble me">agrega comprar leche</div>
+        <div class="bubble bot">Listo, agregué "Comprar leche". Llevas 4 pendientes.</div>
+        <div class="spk">Hablando... &middot; Silenciar</div>
+        <div class="sheet"><div class="mic">MIC</div><div class="hint">Toca y habla</div></div>
+      </div>
+      <p class="cost">Trabajo extra: poco.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="fechas" onclick="toggleSelect(this)">
+    <div class="letter">6</div>
+    <div class="content">
+      <h3>Entiende fechas</h3>
+      <p class="from">Como el "agregado rápido" de Todoist</p>
+      <p>"recuérdame pagar el internet el viernes" guarda la tarea con fecha y la muestra resaltada.</p>
+      <div class="phone">
+        <div class="bar"><span>9:41</span><span>Gustavo</span></div>
+        <div class="top">Asistente</div>
+        <div class="tabs"><div class="act">Asistente</div><div>Mis tareas (4)</div></div>
+        <div class="bubble me">recuérdame pagar el internet <span class="date" style="color:#1f2430">el viernes</span></div>
+        <div class="bubble bot">Listo, agregué "Pagar el internet" para el viernes 20 de noviembre.</div>
+        <div class="sheet"><div class="mic">MIC</div><div class="hint">Toca y habla</div></div>
+      </div>
+      <p class="cost">Trabajo extra: medio. Solo frases comunes: hoy, mañana, el lunes...</p>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,108 @@
+<style>
+  .phones { display:flex; gap:28px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+  .phone { width:250px; height:500px; border:10px solid #1f2430; border-radius:34px; background:#fff;
+           position:relative; overflow:hidden; font-family:system-ui,sans-serif; color:#1f2430; flex:none; }
+  .bar { height:22px; font-size:10px; display:flex; justify-content:space-between; padding:4px 14px 0; color:#555; }
+  .top { padding:6px 16px 10px; font-weight:700; font-size:17px; }
+  .sub { font-size:11px; color:#6b7280; font-weight:400; }
+  .task { display:flex; align-items:center; gap:8px; padding:9px 16px; border-bottom:1px solid #eef0f3; font-size:13px; }
+  .chk { width:15px; height:15px; border:2px solid #9aa3af; border-radius:4px; flex:none; }
+  .chk.on { background:#3b6fd8; border-color:#3b6fd8; }
+  .done { color:#9aa3af; text-decoration:line-through; }
+  .new { background:#eef4ff; }
+  .tag { font-size:9px; color:#3b6fd8; margin-left:auto; }
+  .mic { width:62px; height:62px; border-radius:50%; background:#3b6fd8; color:#fff; display:flex;
+         align-items:center; justify-content:center; font-size:12px; font-weight:700;
+         box-shadow:0 0 0 8px rgba(59,111,216,.18), 0 0 0 16px rgba(59,111,216,.08); }
+  .sheet { position:absolute; left:0; right:0; bottom:0; background:#f7f8fa; border-top:1px solid #e3e6ea;
+           padding:14px 16px 18px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .heard { font-size:13px; text-align:center; }
+  .hint { font-size:10px; color:#6b7280; text-align:center; }
+  .bubble { max-width:78%; padding:7px 10px; border-radius:12px; font-size:12px; margin:5px 12px; }
+  .me { background:#3b6fd8; color:#fff; margin-left:auto; border-bottom-right-radius:3px; }
+  .bot { background:#eef0f3; border-bottom-left-radius:3px; }
+  .tabs { display:flex; font-size:11px; border-bottom:1px solid #e3e6ea; }
+  .tabs div { flex:1; text-align:center; padding:6px 0; color:#6b7280; }
+  .tabs .act { color:#3b6fd8; border-bottom:2px solid #3b6fd8; font-weight:600; }
+  .hero { display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 16px 16px;
+          background:#f7f8fa; border-bottom:1px solid #e3e6ea; }
+  .lbl { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:#6b7280; padding:8px 16px 2px; }
+</style>
+
+<h2>Pantalla principal: ¿cuál se siente mejor?</h2>
+<p class="subtitle">Las tres hacen lo mismo: dices "agrega comprar leche", la app lo guarda en Firestore y aparece en la lista. Cambia dónde está el micrófono y cómo te avisa qué entendió. Las tres están en el momento en que estás hablando.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Lista con micrófono abajo</h3>
+      <p>La lista es lo principal. Al tocar el micrófono sube un panel con lo que va entendiendo; al terminar, la tarea nueva aparece marcada en la lista.</p>
+      <div class="phones">
+        <div class="phone">
+          <div class="bar"><span>9:41</span><span>Gustavo</span></div>
+          <div class="top">Mis tareas <div class="sub">4 pendientes</div></div>
+          <div class="task new"><div class="chk"></div>Comprar leche<span class="tag">recién agregada</span></div>
+          <div class="task"><div class="chk"></div>Llamar al dentista</div>
+          <div class="task"><div class="chk"></div>Entregar reporte de seminario</div>
+          <div class="task"><div class="chk"></div>Pagar el internet</div>
+          <div class="task"><div class="chk on"></div><span class="done">Lavar la ropa</span></div>
+          <div class="sheet">
+            <div class="mic">MIC</div>
+            <div class="hint">Escuchando...</div>
+            <div class="heard">"agrega comprar leche"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Conversación con el asistente</h3>
+      <p>Se siente más "asistente de voz": lo que dices y lo que responde quedan como chat. La lista completa está en la otra pestaña.</p>
+      <div class="phones">
+        <div class="phone">
+          <div class="bar"><span>9:41</span><span>Gustavo</span></div>
+          <div class="top">Asistente</div>
+          <div class="tabs"><div class="act">Asistente</div><div>Mis tareas (4)</div></div>
+          <div class="bubble me">agrega llamar al dentista</div>
+          <div class="bubble bot">Listo, agregué "Llamar al dentista".</div>
+          <div class="bubble me">agrega comprar leche</div>
+          <div class="bubble bot">Listo, agregué "Comprar leche". Llevas 4 pendientes.</div>
+          <div class="sheet">
+            <div class="mic">MIC</div>
+            <div class="hint">Toca y habla</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Micrófono arriba, lista abajo</h3>
+      <p>El micrófono es lo primero que ves y lo que entendió queda fijo arriba; la lista se ve completa debajo, sin paneles encima.</p>
+      <div class="phones">
+        <div class="phone">
+          <div class="bar"><span>9:41</span><span>Gustavo</span></div>
+          <div class="hero">
+            <div class="mic">MIC</div>
+            <div class="hint">Escuchando...</div>
+            <div class="heard">"agrega comprar leche"</div>
+          </div>
+          <div class="lbl">Mis tareas (4)</div>
+          <div class="task new"><div class="chk"></div>Comprar leche<span class="tag">nueva</span></div>
+          <div class="task"><div class="chk"></div>Llamar al dentista</div>
+          <div class="task"><div class="chk"></div>Entregar reporte de seminario</div>
+          <div class="task"><div class="chk"></div>Pagar el internet</div>
+          <div class="task"><div class="chk on"></div><span class="done">Lavar la ropa</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
