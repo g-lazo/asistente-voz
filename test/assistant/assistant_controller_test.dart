@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeSpeech implements SpeechInput {
   SpeechStatus status = SpeechStatus.ready;
   Object? startError;
+  Completer<void>? cancelGate;
   String heard = '';
   int starts = 0;
   int cancelled = 0;
@@ -39,7 +40,10 @@ class FakeSpeech implements SpeechInput {
   Future<String> stop() async => heard;
 
   @override
-  Future<void> cancel() async => cancelled++;
+  Future<void> cancel() async {
+    cancelled++;
+    if (cancelGate != null) await cancelGate!.future;
+  }
 }
 
 class FakeVoice implements VoiceOutput {
@@ -57,8 +61,20 @@ class FakeVoice implements VoiceOutput {
   Future<void> stop() async => stops++;
 }
 
+/// `speak` is not async, so it fails synchronously.
+class SyncThrowingVoice implements VoiceOutput {
+  @override
+  Future<void> speak(String text) => throw Exception('sync failure');
+
+  @override
+  Future<void> stop() => throw Exception('sync failure');
+}
+
 class FakeTasks implements TaskRepository {
   final added = <ParsedTask>[];
+  bool emitOnAdd = true;
+
+  void emit(List<Task> list) => _changes.add(list);
   Object? addError;
   Completer<void>? gate;
   // Synchronous so the new list reaches the controller before add completes,
@@ -75,6 +91,7 @@ class FakeTasks implements TaskRepository {
     if (gate != null) await gate!.future;
     if (addError != null) throw addError!;
     added.add(task);
+    if (!emitOnAdd) return;
     _changes.add([
       for (var i = 0; i < added.length; i++)
         Task(id: '$i', title: added[i].title, done: false, heard: ''),
@@ -89,10 +106,10 @@ class FakeTasks implements TaskRepository {
 }
 
 class Rig {
-  Rig({DateTime? now}) {
+  Rig({DateTime? now, VoiceOutput? customVoice}) {
     controller = AssistantController(
       speech: speech,
-      voice: voice,
+      voice: customVoice ?? voice,
       tasks: tasks,
       muted: muted,
       now: () => now ?? DateTime(2026, 11, 19),
@@ -295,5 +312,77 @@ void main() {
     expect(rig.tasks.hasListeners, isFalse);
     rig.tasks.gate!.complete();
     await end;
+  });
+
+  test('muting stops the voice, unmuting does not', () {
+    rig.muted.value = true;
+    expect(rig.voice.stops, 1);
+    rig.muted.value = false;
+    expect(rig.voice.stops, 1);
+  });
+
+  test('pending count when the list arrives after add (empty list)', () async {
+    rig.tasks.emitOnAdd = false;
+    await say(rig, 'agrega comprar leche');
+    expect(rig.texts.last, endsWith('Llevas 1 pendiente.'));
+  });
+
+  test(
+    'pending count when the list arrives after add (one existing)',
+    () async {
+      rig.tasks.emit([
+        const Task(id: 'x', title: 'Otra', done: false, heard: ''),
+      ]);
+      rig.tasks.emitOnAdd = false;
+      await say(rig, 'agrega comprar leche');
+      expect(rig.texts.last, endsWith('Llevas 2 pendientes.'));
+    },
+  );
+
+  test('a failing speech.start tells the person and returns to idle', () async {
+    rig.speech.startError = Exception('boom');
+    await rig.controller.pressStart();
+    expect(rig.texts.last, replySpeechUnavailable);
+    expect(rig.controller.state, MicState.idle);
+    expect(rig.voice.spoken, [replySpeechUnavailable]);
+  });
+
+  test(
+    'a press during a slow cancel waits and the hint does not return',
+    () async {
+      await rig.controller.pressStart();
+      rig.controller.dragUpdate(-100);
+      rig.speech.cancelGate = Completer<void>();
+      final release = rig.controller.pressEnd();
+      await Future<void>.delayed(Duration.zero);
+      expect(rig.controller.hint, 'Cancelado');
+
+      final press = rig.controller.pressStart();
+      await Future<void>.delayed(Duration.zero);
+      expect(rig.controller.hint, isNot('Cancelado'));
+      expect(rig.speech.starts, 1);
+
+      rig.speech.cancelGate!.complete();
+      await release;
+      await press;
+      expect(rig.controller.state, MicState.listening);
+      expect(rig.speech.starts, 2);
+      expect(rig.controller.hint, isNot('Cancelado'));
+    },
+  );
+
+  test('dispose while listening cancels the recognizer', () async {
+    await rig.controller.pressStart();
+    rig.controller.dispose();
+    expect(rig.speech.cancelled, 1);
+  });
+
+  test('a synchronous failure of voice.speak is ignored', () async {
+    final r = Rig(customVoice: SyncThrowingVoice());
+    addTearDown(r.controller.dispose);
+    await say(r, 'agrega comprar leche');
+    expect(r.tasks.added.length, 1);
+    expect(r.texts.last, startsWith('Listo, agregué'));
+    expect(r.controller.state, MicState.idle);
   });
 }

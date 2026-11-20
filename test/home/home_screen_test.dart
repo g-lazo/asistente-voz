@@ -112,6 +112,34 @@ void main() {
     expect(find.byTooltip('Silenciar voz'), findsNothing);
   });
 
+  testWidgets('sliding on the mic does not drag the page', (tester) async {
+    final repo = await _pump(tester);
+    final mic = find.byKey(const Key('micButton'));
+    final startX = tester.getCenter(mic).dx;
+    final gesture = await tester.startGesture(tester.getCenter(mic));
+    await tester.pump();
+    for (var i = 0; i < 6; i++) {
+      await gesture.moveBy(const Offset(-20, 0));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(tester.getCenter(mic).dx, startX);
+    expect(
+      DefaultTabController.of(tester.element(find.byType(TabBarView))).index,
+      0,
+    );
+
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(tester.getCenter(mic).dx, startX);
+    expect(
+      DefaultTabController.of(tester.element(find.byType(TabBarView))).index,
+      0,
+    );
+    expect(repo.calls, isEmpty);
+    expect(find.text('Cancelado'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 2));
+  });
+
   testWidgets('checkbox and confirmed delete reach the repository', (
     tester,
   ) async {

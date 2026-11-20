@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
@@ -33,6 +34,7 @@ class AssistantController extends ChangeNotifier {
       (list) => _pending = pendingCount(list),
       onError: (Object _) {},
     );
+    _muted.addListener(_onMutedChanged);
   }
 
   final SpeechInput _speech;
@@ -52,6 +54,10 @@ class AssistantController extends ChangeNotifier {
   // is ignored and a quick release is not lost.
   bool _starting = false;
   bool _releasedWhileStarting = false;
+
+  // The running speech.cancel(), so a new press never starts the recognizer
+  // underneath it.
+  Future<void>? _cancelling;
 
   bool _cancelledShown = false;
   Timer? _cancelledTimer;
@@ -93,6 +99,8 @@ class AssistantController extends ChangeNotifier {
       try {
         await _voice.stop();
       } catch (_) {}
+      final cancelling = _cancelling;
+      if (cancelling != null) await cancelling;
       if (_disposed) return;
 
       SpeechStatus status;
@@ -121,10 +129,14 @@ class AssistantController extends ChangeNotifier {
           _notify();
         });
       } catch (_) {
-        _notify();
+        if (_disposed) return;
+        _say(replySpeechUnavailable);
         return;
       }
-      if (_disposed) return;
+      if (_disposed) {
+        _cancelSpeech();
+        return;
+      }
       _setState(MicState.listening);
     } finally {
       _starting = false;
@@ -157,17 +169,25 @@ class AssistantController extends ChangeNotifier {
 
   Future<void> _cancel() async {
     _partial = '';
-    _setState(MicState.idle);
-    try {
-      await _speech.cancel();
-    } catch (_) {}
-    if (_disposed) return;
     _cancelledShown = true;
     _cancelledTimer = Timer(_cancelledHintTime, () {
       _cancelledShown = false;
       _notify();
     });
-    _notify();
+    _setState(MicState.idle);
+    final cancelling = _cancelling = _cancelSpeech();
+    await cancelling;
+    if (identical(_cancelling, cancelling)) _cancelling = null;
+  }
+
+  /// Errors from the recognizer are ignored; a failing cancel has no remedy.
+  Future<void> _cancelSpeech() =>
+      Future.sync(_speech.cancel).catchError((Object _) {});
+
+  void _onMutedChanged() {
+    if (_muted.value) {
+      Future.sync(_voice.stop).catchError((Object _) {});
+    }
   }
 
   Future<void> _send() async {
@@ -193,10 +213,12 @@ class AssistantController extends ChangeNotifier {
     if (task == null) {
       _say(replyNotUnderstood);
     } else {
+      final before = _pending;
       try {
         await _tasks.add(task);
         if (_disposed) return;
-        _say(replySaved(task, _pending));
+        // The list may arrive after add completes; the new task counts anyway.
+        _say(replySaved(task, max(_pending, before + 1)));
       } catch (_) {
         if (_disposed) return;
         _say(replySaveFailed);
@@ -211,7 +233,10 @@ class AssistantController extends ChangeNotifier {
     _notify();
     if (!_muted.value) {
       // The bubble is already on screen, so a failing voice is ignored.
-      unawaited(_voice.speak(spokenText(text)).catchError((Object _) {}));
+      unawaited(
+        Future.sync(() => _voice.speak(spokenText(text)))
+            .catchError((Object _) {}),
+      );
     }
   }
 
@@ -219,6 +244,10 @@ class AssistantController extends ChangeNotifier {
   void dispose() {
     if (_disposed) return;
     _disposed = true;
+    _muted.removeListener(_onMutedChanged);
+    if (_state == MicState.listening || _state == MicState.cancelArmed) {
+      _cancelSpeech();
+    }
     _cancelledTimer?.cancel();
     _subscription.cancel();
     super.dispose();

@@ -22,4 +22,15 @@ void main() {
     a.update('hola', isFinal: false);
     expect(a.text, 'hola');
   });
+
+  test('trims segments and keeps single spaces', () {
+    final a = TranscriptAccumulator();
+    a.update(' uno ', isFinal: true);
+    a.update(' dos', isFinal: false);
+    expect(a.text, 'uno dos');
+    a.update('tres   cuatro', isFinal: true);
+    expect(a.text, 'uno tres cuatro');
+    a.update('   ', isFinal: true);
+    expect(a.text, 'uno tres cuatro');
+  });
 }

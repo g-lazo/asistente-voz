@@ -135,27 +135,37 @@ class _MicButtonState extends State<_MicButton> {
             widget.controller.dragUpdate(e.position.dx - _startX),
         onPointerUp: (_) => widget.controller.pressEnd(),
         onPointerCancel: (_) => widget.controller.pressEnd(),
-        child: SizedBox(
-          key: const Key('micButton'),
-          width: 128,
-          height: 128,
-          child: Center(
-            child: Container(
-              width: size + 24,
-              height: size + 24,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: listening || armed ? halo : null,
-              ),
+        // Competes with the pager's horizontal drag so sliding to cancel does
+        // not turn the page; the Listener above still sees every pointer.
+        child: GestureDetector(
+          onHorizontalDragStart: (_) {},
+          onHorizontalDragUpdate: (_) {},
+          onHorizontalDragEnd: (_) {},
+          child: SizedBox(
+            key: const Key('micButton'),
+            width: 128,
+            height: 128,
+            child: Center(
               child: Container(
-                width: size,
-                height: size,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: fill),
-                child: Icon(
-                  armed ? Icons.close : Icons.mic,
-                  color: onFill,
-                  size: size * 0.45,
+                width: size + 24,
+                height: size + 24,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: listening || armed ? halo : null,
+                ),
+                child: Container(
+                  width: size,
+                  height: size,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: fill,
+                  ),
+                  child: Icon(
+                    armed ? Icons.close : Icons.mic,
+                    color: onFill,
+                    size: size * 0.45,
+                  ),
                 ),
               ),
             ),

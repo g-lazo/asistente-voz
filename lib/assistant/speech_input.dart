@@ -20,12 +20,15 @@ abstract class SpeechInput {
 
 /// Joins what the recognizer reports across restarts of its session: finished
 /// segments plus the one still being spoken.
+final _whitespace = RegExp(r'\s+');
+
 class TranscriptAccumulator {
   final _finished = <String>[];
   String _current = '';
 
   /// [segment] is the recognizer's text for the current session only.
   void update(String segment, {required bool isFinal}) {
+    segment = segment.trim().replaceAll(_whitespace, ' ');
     if (isFinal) {
       if (segment.isNotEmpty) _finished.add(segment);
       _current = '';
@@ -98,7 +101,12 @@ class SttSpeechInput implements SpeechInput {
     _lastWasFinal = true;
     _onText = onText;
     _holding = true;
-    await _listen();
+    try {
+      await _listen();
+    } catch (_) {
+      _holding = false;
+      rethrow;
+    }
   }
 
   Future<void> _listen() => _stt.listen(
