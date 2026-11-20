@@ -61,7 +61,8 @@ class FirestoreTaskRepository implements TaskRepository {
           .timeout(ackTimeout);
     } on TimeoutException {
       // The write is queued locally; remove it so it cannot surface later.
-      unawaited(ref.delete());
+      // A later rejection of the cleanup must not become an unhandled error.
+      unawaited(ref.delete().catchError((Object _) {}));
       rethrow;
     }
   }

@@ -104,4 +104,28 @@ void main() {
     );
     verify(() => doc.delete()).called(1);
   });
+
+  test('a failing cleanup after a timeout is swallowed', () async {
+    final firestore = _MockFirestore();
+    final collection = _MockCollection();
+    final doc = _MockDoc();
+    when(() => firestore.collection('users/u1/tasks')).thenReturn(collection);
+    when(() => collection.doc()).thenReturn(doc);
+    when(() => doc.set(any())).thenAnswer((_) => Completer<void>().future);
+    when(() => doc.delete())
+        .thenAnswer((_) => Future<void>.error(Exception('denied')));
+
+    final repo = FirestoreTaskRepository(
+      firestore,
+      'u1',
+      ackTimeout: const Duration(milliseconds: 50),
+    );
+    await expectLater(
+      repo.add(const ParsedTask(title: 'Algo', heard: 'algo')),
+      throwsA(isA<TimeoutException>()),
+    );
+    // Let the failed cleanup settle; an unhandled error would fail the test.
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    verify(() => doc.delete()).called(1);
+  });
 }

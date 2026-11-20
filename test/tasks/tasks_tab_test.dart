@@ -57,6 +57,29 @@ void main() {
     expect(colorOf('jue 19 nov', 0), isNot(error));
   });
 
+  testWidgets('today with a time of day is not overdue', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: TasksTab(
+            tasks: [
+              _task('1', 'Hoy', due: DateTime(2026, 11, 20)),
+              _task('2', 'Ayer', due: DateTime(2026, 11, 19)),
+            ],
+            today: DateTime(2026, 11, 20, 15, 30),
+            onToggle: (_, _) {},
+            onDelete: (_) {},
+          ),
+        ),
+      ),
+    );
+    final error = Theme.of(tester.element(find.text('Hoy'))).colorScheme.error;
+    Color? colorOf(String label) =>
+        tester.widget<Text>(find.text(label)).style?.color;
+    expect(colorOf('vie 20 nov'), isNot(error));
+    expect(colorOf('jue 19 nov'), error);
+  });
+
   testWidgets('checkbox calls onToggle with the new value', (tester) async {
     final calls = <(String, bool)>[];
     await _pump(tester, [

@@ -101,4 +101,24 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('a failed stream shows an error instead of the empty state', (
+    tester,
+  ) async {
+    final repo = await _pump(tester, initial: [_task('1')]);
+    repo.controller.addError(Exception('permission-denied'));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Mis tareas'), findsOneWidget);
+    await tester.tap(find.text('Mis tareas'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('No se pudieron cargar tus tareas. Revisa tu conexión.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Aún no tienes tareas. Ve al Asistente y dicta la primera.'),
+      findsNothing,
+    );
+  });
 }

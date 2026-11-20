@@ -54,7 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: TabBar(
                 tabs: [
                   const Tab(text: 'Asistente'),
-                  Tab(text: 'Mis tareas (${pendingCount(tasks)})'),
+                  Tab(
+                    text: snapshot.hasError
+                        ? 'Mis tareas'
+                        : 'Mis tareas (${pendingCount(tasks)})',
+                  ),
                 ],
               ),
             ),
@@ -62,13 +66,22 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // Placeholder until the assistant tab exists.
                 const Center(child: Text('El asistente llega pronto.')),
-                TasksTab(
-                  tasks: tasks,
-                  today: DateTime(now.year, now.month, now.day),
-                  onToggle: (task, done) =>
-                      _run(() => widget.tasks.setDone(task.id, done)),
-                  onDelete: (task) => _run(() => widget.tasks.delete(task.id)),
-                ),
+                if (snapshot.hasError)
+                  const Center(
+                    child: Text(
+                      'No se pudieron cargar tus tareas. Revisa tu conexión.',
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                else
+                  TasksTab(
+                    tasks: tasks,
+                    today: DateTime(now.year, now.month, now.day),
+                    onToggle: (task, done) =>
+                        _run(() => widget.tasks.setDone(task.id, done)),
+                    onDelete: (task) =>
+                        _run(() => widget.tasks.delete(task.id)),
+                  ),
               ],
             ),
           ),

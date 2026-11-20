@@ -52,12 +52,13 @@ class TasksTab extends StatelessWidget {
       );
     }
     final scheme = Theme.of(context).colorScheme;
+    final day = DateTime(today.year, today.month, today.day);
     return ListView.builder(
       itemCount: tasks.length,
       itemBuilder: (context, i) {
         final task = tasks[i];
         final due = task.dueDate;
-        final overdue = due != null && !task.done && due.isBefore(today);
+        final overdue = due != null && !task.done && due.isBefore(day);
         return ListTile(
           leading: Checkbox(
             value: task.done,
