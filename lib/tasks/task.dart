@@ -17,19 +17,22 @@ class Task {
   final DateTime? createdAt;
 
   /// data['createdAt'] is a DateTime or null; the repository converts
-  /// Firestore's Timestamp first.
+  /// Firestore's Timestamp first. Never throws: a field of the wrong type
+  /// reads as its default, so one malformed document does not break the list.
   factory Task.fromMap(String id, Map<String, dynamic> data) {
     final createdAt = data['createdAt'];
     return Task(
       id: id,
-      title: data['title'] as String? ?? '',
-      done: data['done'] as bool? ?? false,
-      heard: data['heard'] as String? ?? '',
+      title: _asString(data['title']),
+      done: data['done'] == true,
+      heard: _asString(data['heard']),
       dueDate: decodeDueDate(data['dueDate']),
       createdAt: createdAt is DateTime ? createdAt : null,
     );
   }
 }
+
+String _asString(Object? v) => v is String ? v : '';
 
 /// "2026-11-20", or null when there is no date.
 String? encodeDueDate(DateTime? d) {
@@ -76,7 +79,8 @@ List<Task> sortTasks(List<Task> tasks) {
         if (c != 0) return c;
       }
     }
-    return newestFirst(a, b);
+    final c = newestFirst(a, b);
+    return c != 0 ? c : a.id.compareTo(b.id);
   }
 
   return [...tasks]..sort(compare);

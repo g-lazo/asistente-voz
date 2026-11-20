@@ -13,13 +13,21 @@ void main() {
 
   test('fromMap tolerates missing fields', () {
     final t = Task.fromMap('x', {'title': 'Comprar leche'});
-    expect([t.id, t.title, t.done, t.heard, t.dueDate, t.createdAt],
-        ['x', 'Comprar leche', false, '', null, null]);
+    expect(
+      [t.id, t.title, t.done, t.heard, t.dueDate, t.createdAt],
+      ['x', 'Comprar leche', false, '', null, null],
+    );
   });
 
   test('sort order', () {
     Task t(String id, {bool done = false, DateTime? due, DateTime? at}) => Task(
-        id: id, title: id, done: done, heard: '', dueDate: due, createdAt: at);
+      id: id,
+      title: id,
+      done: done,
+      heard: '',
+      dueDate: due,
+      createdAt: at,
+    );
     final sorted = sortTasks([
       t('done', done: true, at: DateTime(2026, 11, 19)),
       t('undated-old', at: DateTime(2026, 11, 1)),
@@ -28,8 +36,37 @@ void main() {
       t('soon', due: DateTime(2026, 11, 20)),
       t('just-written'),
     ]);
-    expect(sorted.map((e) => e.id),
-        ['soon', 'late', 'just-written', 'undated-new', 'undated-old', 'done']);
+    expect(sorted.map((e) => e.id), [
+      'soon',
+      'late',
+      'just-written',
+      'undated-new',
+      'undated-old',
+      'done',
+    ]);
     expect(pendingCount(sorted), 5);
+  });
+
+  test('fromMap never throws on wrong types', () {
+    final t = Task.fromMap('x', {'title': 42, 'done': 'yes', 'heard': null});
+    expect([t.title, t.done, t.heard], ['', false, '']);
+  });
+
+  test('sort ties break by id whatever the input order', () {
+    Task t(String id) => Task(
+      id: id,
+      title: 'same',
+      done: false,
+      heard: '',
+      createdAt: DateTime(2026),
+    );
+    final a = t('a'), b = t('b'), c = t('c');
+    for (final input in [
+      [a, b, c],
+      [c, b, a],
+      [b, c, a],
+    ]) {
+      expect(sortTasks(input).map((e) => e.id), ['a', 'b', 'c']);
+    }
   });
 }
