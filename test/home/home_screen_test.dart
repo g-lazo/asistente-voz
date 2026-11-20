@@ -1,14 +1,41 @@
 import 'dart:async';
 
 import 'package:asistente_voz/assistant/command_parser.dart';
+import 'package:asistente_voz/assistant/mute_setting.dart';
+import 'package:asistente_voz/assistant/speech_input.dart';
+import 'package:asistente_voz/assistant/voice_output.dart';
 import 'package:asistente_voz/home/home_screen.dart';
 import 'package:asistente_voz/tasks/task.dart';
 import 'package:asistente_voz/tasks/task_repository.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class _FakeSpeech implements SpeechInput {
+  @override
+  Future<SpeechStatus> prepare() async => SpeechStatus.ready;
+
+  @override
+  Future<void> start(void Function(String text) onText) async {}
+
+  @override
+  Future<String> stop() async => '';
+
+  @override
+  Future<void> cancel() async {}
+}
+
+class _FakeVoice implements VoiceOutput {
+  @override
+  Future<void> speak(String text) async {}
+
+  @override
+  Future<void> stop() async {}
+}
 
 class _FakeRepository implements TaskRepository {
-  final controller = StreamController<List<Task>>();
+  // Broadcast: the screen and the assistant controller both listen.
+  final controller = StreamController<List<Task>>.broadcast();
   final calls = <String>[];
   Object? failWith;
 
@@ -41,9 +68,18 @@ Future<_FakeRepository> _pump(
 }) async {
   final repo = _FakeRepository();
   addTearDown(repo.controller.close);
+  SharedPreferences.setMockInitialValues({});
+  final mute = MuteSetting(await SharedPreferences.getInstance());
+  addTearDown(mute.dispose);
   await tester.pumpWidget(
     MaterialApp(
-      home: HomeScreen(tasks: repo, onSignOut: onSignOut ?? () {}),
+      home: HomeScreen(
+        tasks: repo,
+        onSignOut: onSignOut ?? () {},
+        speech: _FakeSpeech(),
+        voice: _FakeVoice(),
+        mute: mute,
+      ),
     ),
   );
   repo.controller.add(
@@ -65,6 +101,15 @@ void main() {
     await _pump(tester, onSignOut: () => calls++);
     await tester.tap(find.byTooltip('Cerrar sesión'));
     expect(calls, 1);
+  });
+
+  testWidgets('mute button toggles its tooltip', (tester) async {
+    await _pump(tester);
+    expect(find.byTooltip('Silenciar voz'), findsOneWidget);
+    await tester.tap(find.byTooltip('Silenciar voz'));
+    await tester.pump();
+    expect(find.byTooltip('Activar voz'), findsOneWidget);
+    expect(find.byTooltip('Silenciar voz'), findsNothing);
   });
 
   testWidgets('checkbox and confirmed delete reach the repository', (

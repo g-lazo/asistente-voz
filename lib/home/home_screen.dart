@@ -1,14 +1,29 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../assistant/assistant_controller.dart';
+import '../assistant/assistant_tab.dart';
+import '../assistant/mute_setting.dart';
+import '../assistant/speech_input.dart';
+import '../assistant/voice_output.dart';
 import '../tasks/task.dart';
 import '../tasks/task_repository.dart';
 import '../tasks/tasks_tab.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.tasks, required this.onSignOut});
+  const HomeScreen({
+    super.key,
+    required this.tasks,
+    required this.onSignOut,
+    required this.speech,
+    required this.voice,
+    required this.mute,
+  });
 
   final TaskRepository tasks;
   final VoidCallback onSignOut;
+  final SpeechInput speech;
+  final VoiceOutput voice;
+  final MuteSetting mute;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -17,6 +32,26 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // Kept so rebuilds do not subscribe again.
   late final Stream<List<Task>> _stream = widget.tasks.watch();
+
+  // Owned here so the chat survives switching tabs.
+  late final AssistantController _assistant;
+
+  @override
+  void initState() {
+    super.initState();
+    _assistant = AssistantController(
+      speech: widget.speech,
+      voice: widget.voice,
+      tasks: widget.tasks,
+      muted: widget.mute,
+    );
+  }
+
+  @override
+  void dispose() {
+    _assistant.dispose();
+    super.dispose();
+  }
 
   /// Write errors must not escape as unhandled async errors.
   Future<void> _run(Future<void> Function() write) async {
@@ -45,6 +80,14 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
               title: const Text('Asistente de tareas'),
               actions: [
+                ValueListenableBuilder<bool>(
+                  valueListenable: widget.mute,
+                  builder: (context, muted, _) => IconButton(
+                    icon: Icon(muted ? Icons.volume_off : Icons.volume_up),
+                    tooltip: muted ? 'Activar voz' : 'Silenciar voz',
+                    onPressed: widget.mute.toggle,
+                  ),
+                ),
                 IconButton(
                   icon: const Icon(Icons.logout),
                   tooltip: 'Cerrar sesión',
@@ -64,8 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             body: TabBarView(
               children: [
-                // Placeholder until the assistant tab exists.
-                const Center(child: Text('El asistente llega pronto.')),
+                AssistantTab(controller: _assistant),
                 if (snapshot.hasError)
                   const Center(
                     child: Text(
