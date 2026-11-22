@@ -39,8 +39,6 @@ in the Docker image. Every command below goes through `make` or `docker compose 
 3. In the Firebase console, create a project (the free Spark plan is enough), then:
    - Authentication: enable the Email/Password sign-in method.
    - Firestore Database: create the database.
-   - Project settings: register an Android app and a web app, so the Flutter configuration can be
-     generated for both.
 
 4. Log in to Firebase from the container. This is interactive and uses your own Google account;
    follow the link it prints and paste the code back.
@@ -49,20 +47,22 @@ in the Docker image. Every command below goes through `make` or `docker compose 
    make firebase-login
    ```
 
-5. Generate the Flutter configuration for your project with the FlutterFire CLI, replacing
-   `<your-project-id>` with the id of the project you created:
+5. Register the Android and web apps in your project and generate the Flutter configuration with
+   the FlutterFire CLI, replacing `<your-project-id>` with the id of the project you created:
 
    ```
-   docker compose exec dev flutterfire configure --project=<your-project-id>
+   docker compose exec dev flutterfire configure --project=<your-project-id> --platforms=android,web --android-package-name=mx.glazo.asistente_voz --yes
    ```
 
    The generated values identify the project; they are not secrets, and access is controlled by the
    security rules.
 
 6. Deploy the Firestore security rules (`firestore.rules`): a signed-in user can read and write only
-   the documents under their own `users/{uid}`. This changes the live project.
+   the documents under their own `users/{uid}`. First select the project for the Firebase CLI, which
+   records it for the deploy. The deploy changes the live project.
 
    ```
+   docker compose exec dev firebase use <your-project-id>
    make rules-deploy
    ```
 
