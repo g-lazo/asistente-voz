@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +15,7 @@ import 'firebase_options.dart';
 import 'home/home_screen.dart';
 import 'tasks/task_repository.dart';
 import 'theme/noche.dart';
+import 'web_frame/phone_frame.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +33,7 @@ Future<void> main() async {
       title: 'Asistente de tareas',
       theme: nocheTheme(),
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => PhoneFrame(enabled: kIsWeb, child: child!),
       home: AuthGate(
         uid: auth.userChanges.map((u) => u?.uid),
         signedOut: (_) =>
