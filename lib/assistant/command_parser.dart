@@ -15,20 +15,75 @@ class ParsedTask {
 
 const _maxTitleLength = 200;
 
+// Polite starts and courtesy endings, removed before anything else.
+const _openers = [
+  ['por', 'favor'],
+  ['porfa'],
+  ['oye'],
+  ['hola'],
+];
+
+const _courtesy = [
+  ['por', 'favor'],
+  ['porfa'],
+];
+
+// The lead-in is "request, frame, me, trigger" in that order, each optional
+// except the trigger. Longest first within each list.
+const _requests = [
+  ['me', 'gustaria', 'que'],
+  ['quiero', 'que'],
+  ['quisiera', 'que'],
+  ['necesito', 'que'],
+  ['me', 'puedes'],
+  ['me', 'podrias'],
+  ['puedes'],
+  ['podrias'],
+];
+
+// Also removed on their own when a phrase starts with one ("tengo que ir").
+const _frames = [
+  ['tengo', 'que'],
+  ['hay', 'que'],
+  ['me', 'gustaria'],
+  ['debo'],
+  ['necesito'],
+  ['quiero'],
+  ['quisiera'],
+];
+
 const _triggers = {
   'agrega',
   'agregar',
+  'agregues',
+  'agregue',
+  'agregame',
   'anade',
   'anadir',
+  'anadas',
+  'anada',
+  'anademe',
   'anota',
   'anotar',
+  'anotes',
+  'anote',
+  'anotame',
   'recuerdame',
+  'recuerdas',
+  'recuerdes',
+  'recuerde',
+  'recordar',
+  'recordarme',
 };
 
 // Longest first, so "la tarea de" wins over "la tarea".
 const _connectors = [
   ['la', 'tarea', 'de'],
   ['una', 'tarea', 'de'],
+  ['la', 'tarea', 'para'],
+  ['una', 'tarea', 'para'],
+  ['a', 'mi', 'lista'],
+  ['a', 'la', 'lista'],
   ['la', 'tarea'],
   ['una', 'tarea'],
   ['que'],
@@ -141,17 +196,40 @@ ParsedTask? parseCommand(String transcript, DateTime today) {
   var words = heard.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
   var folded = words.map(_fold).toList();
 
-  if (folded.isNotEmpty && _triggers.contains(folded.first)) {
-    words = words.sublist(1);
-    folded = folded.sublist(1);
-    for (final connector in _connectors) {
-      if (_startsWith(folded, connector)) {
-        words = words.sublist(connector.length);
-        folded = folded.sublist(connector.length);
-        break;
-      }
-    }
+  // Every removal cuts both lists the same way: the title comes from [words].
+  void dropFront(int n) {
+    words = words.sublist(n);
+    folded = folded.sublist(n);
   }
+
+  // Length of the phrase of [options] that [folded] starts with, or 0.
+  int frontMatch(List<List<String>> options) {
+    for (final option in options) {
+      if (_startsWith(folded, option)) return option.length;
+    }
+    return 0;
+  }
+
+  while (true) {
+    final n = _trailingCourtesy(folded);
+    if (n == 0) break;
+    words = words.sublist(0, words.length - n);
+    folded = folded.sublist(0, folded.length - n);
+  }
+  for (var n = frontMatch(_openers); n > 0; n = frontMatch(_openers)) {
+    dropFront(n);
+  }
+
+  // Lead-in, all or nothing: [request] [frame] [me] trigger [connector].
+  var at = _matchAt(folded, 0, _requests);
+  at += _matchAt(folded, at, _frames);
+  if (at < folded.length && folded[at] == 'me') at++;
+  if (at < folded.length && _triggers.contains(folded[at])) {
+    dropFront(at + 1);
+    dropFront(frontMatch(_connectors));
+  }
+
+  dropFront(frontMatch(_frames));
 
   DateTime? due;
   final maxLen =
@@ -174,14 +252,19 @@ ParsedTask? parseCommand(String transcript, DateTime today) {
       folded = folded.sublist(0, folded.length - len);
     }
   }
+  var fromStart = false;
   for (var len = maxLen; len >= 1 && due == null; len--) {
     final date = _parseDatePhrase(folded.sublist(0, len), today);
     if (date != null) {
       due = date;
+      fromStart = true;
       words = words.sublist(len);
       folded = folded.sublist(len);
     }
   }
+
+  // "mañana tengo que ir al banco": the frame was hidden behind the date.
+  if (due != null && fromStart) dropFront(frontMatch(_frames));
 
   if (due != null) {
     while (folded.isNotEmpty && _trailingFillers.contains(folded.last)) {
@@ -209,4 +292,24 @@ bool _startsWith(List<String> words, List<String> prefix) {
     if (words[i] != prefix[i]) return false;
   }
   return true;
+}
+
+/// Length of the courtesy phrase [words] ends with, or 0.
+int _trailingCourtesy(List<String> words) {
+  for (final phrase in _courtesy) {
+    final offset = words.length - phrase.length;
+    if (offset >= 0 && _startsWith(words.sublist(offset), phrase)) {
+      return phrase.length;
+    }
+  }
+  return 0;
+}
+
+/// How many words of the first matching phrase of [options] sit at [from].
+int _matchAt(List<String> words, int from, List<List<String>> options) {
+  final rest = words.sublist(from);
+  for (final option in options) {
+    if (_startsWith(rest, option)) return option.length;
+  }
+  return 0;
 }

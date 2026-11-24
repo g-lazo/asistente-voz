@@ -177,6 +177,46 @@ Examples, with today being Thursday 2026-11-19:
 | agrega | no task | - |
 | (silence) | no task | - |
 
+#### Natural lead-ins (added 2026-11-24, Gustavo's decision after the voice test)
+
+In his voice test Gustavo said "quiero que añadas que tengo que hacer la tarea" and the whole phrase was
+saved as the task. The app must understand natural ways of asking. This replaces step 2 above. All
+matching is on folded words (lower-case, no accents, edge punctuation dropped). Word lists, folded:
+
+- Openers: "por favor", "porfa", "oye", "hola".
+- Trailing courtesy: "por favor", "porfa".
+- Requests (longest first): "me gustaria que", "quiero que", "quisiera que", "necesito que",
+  "me puedes", "me podrias", "puedes", "podrias".
+- Frames (longest first): "tengo que", "hay que", "me gustaria", "debo", "necesito", "quiero",
+  "quisiera".
+- Triggers: "agrega", "agregar", "agregues", "agregue", "agregame", "anade", "anadir", "anadas",
+  "anada", "anademe", "anota", "anotar", "anotes", "anote", "anotame", "recuerdame", "recuerdas",
+  "recuerdes", "recuerde", "recordar", "recordarme".
+- Connectors (longest first): "la tarea de", "una tarea de", "la tarea para", "una tarea para",
+  "a mi lista", "a la lista", "la tarea", "una tarea", "que".
+
+Steps, in this order:
+
+1. While the phrase ends with a trailing courtesy, remove it.
+2. While the phrase starts with an opener, remove it.
+3. Lead-in, all or nothing. From the start, in order: at most one request, then at most one frame, then
+   at most one "me", then a trigger is required. If the trigger is there, remove everything up to and
+   including it, and then at most one connector. If there is no trigger at that point, remove nothing
+   in this step.
+4. If the phrase now starts with a frame, remove it (once).
+5. Date detection as before: at the very end first, then at the very start.
+6. If the date was removed from the start, and the phrase now starts with a frame, remove it (once).
+7. Trailing fillers, title clean-up, capital letter and the 200-character cut as before. An empty title
+   is still "no task".
+
+A connector is still only removed right after a trigger.
+
+| Heard | Title | Due date |
+|---|---|---|
+| quiero que añadas que tengo que hacer la tarea | Hacer la tarea | none |
+| agrega comprar leche mañana por favor | Comprar leche | 2026-11-20 |
+| recuérdame que tengo que pagar el internet el viernes | Pagar el internet | 2026-11-20 |
+
 ### 8.5 The assistant's answers
 
 Every answer is an assistant bubble and, unless muted, is also read out loud with a Spanish voice

@@ -92,8 +92,9 @@ microphone button, speak, and release. Slide to the left before releasing to can
 saved. In the emulator and in Chrome the same gesture is done with the mouse. The tasks appear in the
 "Mis tareas" tab as they are saved. The mute button in the app bar turns the spoken answers off.
 
-A phrase may start with "agrega", "añade", "anota" or "recuérdame", but it does not have to: without
-one of those words the whole phrase is the task. A date phrase is removed from the task text and
+You can say the task naturally. A polite or lead-in start ("por favor", "quiero que añadas que",
+"puedes agregar", "necesito", "tengo que") and the verbs agregar, añadir, anotar and recordar in their
+common forms are removed, and what is left is the task. Saying only the task works too. A date phrase is removed from the task text and
 stored as its due date. Examples, with today being Thursday 19 November 2026:
 
 | You say | Task | Due date |
@@ -106,6 +107,9 @@ stored as its due date. Examples, with today being Thursday 19 November 2026:
 | añade cita con el dentista el 25 de noviembre | Cita con el dentista | 2026-11-25 |
 | agrega ir al gimnasio el jueves | Ir al gimnasio | 2026-11-26 |
 | anota renovar la licencia el 5 de enero | Renovar la licencia | 2027-01-05 |
+| quiero que añadas que tengo que hacer la tarea | Hacer la tarea | none |
+| agrega comprar leche mañana por favor | Comprar leche | 2026-11-20 |
+| recuérdame que tengo que pagar el internet el viernes | Pagar el internet | 2026-11-20 |
 
 Supported dates are "hoy", "mañana", "pasado mañana", a weekday ("el lunes" to "el domingo": the next
 such day after today) and a day and month ("el 25 de noviembre": this year, or next year if it has

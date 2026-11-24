@@ -88,12 +88,12 @@ void main() {
         task('$w comprar leche', 'Comprar leche');
       }
     });
-    test('triggers only count at the first word', () {
+    test('triggers only count at the start of the phrase', () {
       task('comprar leche agrega', 'Comprar leche agrega');
       task('agrega agrega', 'Agrega');
       task('agrega agrega comprar', 'Agrega comprar');
       task('agrega anota comprar', 'Anota comprar');
-      task('agrégame comprar leche', 'Agrégame comprar leche');
+      task('agrégame comprar leche', 'Comprar leche');
       task('recuérdame recuérdame', 'Recuérdame');
     });
   });
