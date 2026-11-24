@@ -40,3 +40,17 @@ String headerDateLabel(DateTime d) {
   final label = longDateLabel(d);
   return '${label[0].toUpperCase()}${label.substring(1)}';
 }
+
+/// "Hoy", "Mañana" or "Ayer" next to [today]; otherwise the short label with
+/// a capital letter ("Vie 27 nov"). Only the date parts are compared, and the
+/// day arithmetic goes through DateTime so month and year ends and daylight
+/// saving changes do not matter.
+String chipDateLabel(DateTime due, DateTime today) {
+  final day = DateTime(due.year, due.month, due.day);
+  final now = DateTime(today.year, today.month, today.day);
+  if (day == now) return 'Hoy';
+  if (day == DateTime(now.year, now.month, now.day + 1)) return 'Mañana';
+  if (day == DateTime(now.year, now.month, now.day - 1)) return 'Ayer';
+  final label = shortDateLabel(day);
+  return '${label[0].toUpperCase()}${label.substring(1)}';
+}
