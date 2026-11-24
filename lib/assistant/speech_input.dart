@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -48,6 +49,24 @@ class TranscriptAccumulator {
 
 String _normalizeLocale(String id) => id.replaceAll('-', '_').toLowerCase();
 
+/// The locale to ask the recognizer for, out of the ids it lists.
+/// First es_MX, then es_US, then any Spanish locale, compared without regard
+/// to case or to `-` versus `_`; the id is returned exactly as listed.
+/// When no Spanish locale is listed: 'es-MX' on web, where the plugin cannot
+/// list locales and the browser would otherwise listen in the page language;
+/// null (the system default) elsewhere.
+String? pickSpeechLocale(List<String> localeIds, {required bool web}) {
+  for (final wanted in const ['es_mx', 'es_us']) {
+    for (final id in localeIds) {
+      if (_normalizeLocale(id) == wanted) return id;
+    }
+  }
+  for (final id in localeIds) {
+    if (_normalizeLocale(id).startsWith('es')) return id;
+  }
+  return web ? 'es-MX' : null;
+}
+
 class SttSpeechInput implements SpeechInput {
   final _stt = SpeechToText();
   final _transcript = TranscriptAccumulator();
@@ -72,26 +91,17 @@ class SttSpeechInput implements SpeechInput {
             : SpeechStatus.permissionDenied;
       }
       if (!_localeResolved) {
-        _localeId = _pickLocale(await _stt.locales());
+        final locales = await _stt.locales();
+        _localeId = pickSpeechLocale(
+          [for (final l in locales) l.localeId],
+          web: kIsWeb,
+        );
         _localeResolved = true;
       }
       return SpeechStatus.ready;
     } catch (_) {
       return SpeechStatus.unavailable;
     }
-  }
-
-  /// First of es_MX, es_US, then any Spanish locale; null for the default.
-  String? _pickLocale(List<LocaleName> locales) {
-    for (final wanted in const ['es_mx', 'es_us']) {
-      for (final l in locales) {
-        if (_normalizeLocale(l.localeId) == wanted) return l.localeId;
-      }
-    }
-    for (final l in locales) {
-      if (_normalizeLocale(l.localeId).startsWith('es')) return l.localeId;
-    }
-    return null;
   }
 
   @override
