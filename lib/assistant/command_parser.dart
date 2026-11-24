@@ -43,6 +43,11 @@ const _requests = [
 
 // Also removed on their own when a phrase starts with one ("tengo que ir").
 const _frames = [
+  ['que', 'no', 'se', 'me', 'olvide'],
+  ['no', 'se', 'me', 'olvide'],
+  ['que', 'no', 'se', 'me', 'pase'],
+  ['no', 'se', 'me', 'pase'],
+  ['tengo', 'pendiente'],
   ['tengo', 'que'],
   ['hay', 'que'],
   ['me', 'gustaria'],
@@ -54,21 +59,32 @@ const _frames = [
 
 const _triggers = {
   'agrega',
+  'agregas',
   'agregar',
   'agregues',
   'agregue',
   'agregame',
   'anade',
+  'anades',
   'anadir',
   'anadas',
   'anada',
   'anademe',
+  'anotas',
   'anota',
   'anotar',
   'anotes',
   'anote',
   'anotame',
   'recuerdame',
+  'acuerdame',
+  'apunta',
+  'apuntar',
+  'apuntes',
+  'apunte',
+  'apuntas',
+  'apuntame',
+  'ponme',
   'recuerdas',
   'recuerdes',
   'recuerde',
@@ -76,17 +92,25 @@ const _triggers = {
   'recordarme',
 };
 
-// Longest first, so "la tarea de" wins over "la tarea".
-const _connectors = [
+// Only removed right after a trigger. Longest first, so "la tarea de" wins
+// over "la tarea" and "a mi lista de compras" over "a mi lista".
+final _connectors = [
   ['la', 'tarea', 'de'],
   ['una', 'tarea', 'de'],
   ['la', 'tarea', 'para'],
   ['una', 'tarea', 'para'],
-  ['a', 'mi', 'lista'],
-  ['a', 'la', 'lista'],
+  for (final prep in ['a', 'en'])
+    for (final det in ['mi', 'la'])
+      for (final what in ['pendientes', 'tareas', 'compras'])
+        [prep, det, 'lista', 'de', what],
+  for (final prep in ['a', 'en'])
+    for (final det in ['mi', 'la']) [prep, det, 'lista'],
+  ['a', 'mis', 'pendientes'],
+  ['a', 'mis', 'tareas'],
   ['la', 'tarea'],
   ['una', 'tarea'],
   ['que'],
+  ['de'],
 ];
 
 // DateTime.monday is 1 ... DateTime.sunday is 7.
@@ -216,20 +240,37 @@ ParsedTask? parseCommand(String transcript, DateTime today) {
     words = words.sublist(0, words.length - n);
     folded = folded.sublist(0, folded.length - n);
   }
-  for (var n = frontMatch(_openers); n > 0; n = frontMatch(_openers)) {
-    dropFront(n);
+  // Steps 2 to 4: openers, then the lead-in (all or nothing), then one frame.
+  void stripLeadIn() {
+    for (var n = frontMatch(_openers); n > 0; n = frontMatch(_openers)) {
+      dropFront(n);
+    }
+
+    // [request] [frame] [me] trigger [connector], a courtesy allowed in front
+    // of each part. It counts only when the trigger is found.
+    var at = 0;
+    void part(List<List<String>> options) {
+      at += _matchAt(folded, at, _courtesy);
+      at += _matchAt(folded, at, options);
+    }
+
+    part(_requests);
+    part(_frames);
+    part(const [
+      ['me']
+    ]);
+    at += _matchAt(folded, at, _courtesy);
+    if (at < folded.length && _triggers.contains(folded[at])) {
+      dropFront(at + 1);
+      dropFront(frontMatch(_courtesy));
+      dropFront(frontMatch(_connectors));
+      dropFront(frontMatch(_courtesy));
+    }
+
+    dropFront(frontMatch(_frames));
   }
 
-  // Lead-in, all or nothing: [request] [frame] [me] trigger [connector].
-  var at = _matchAt(folded, 0, _requests);
-  at += _matchAt(folded, at, _frames);
-  if (at < folded.length && folded[at] == 'me') at++;
-  if (at < folded.length && _triggers.contains(folded[at])) {
-    dropFront(at + 1);
-    dropFront(frontMatch(_connectors));
-  }
-
-  dropFront(frontMatch(_frames));
+  stripLeadIn();
 
   DateTime? due;
   final maxLen =
@@ -263,8 +304,13 @@ ParsedTask? parseCommand(String transcript, DateTime today) {
     }
   }
 
-  // "mañana tengo que ir al banco": the frame was hidden behind the date.
-  if (due != null && fromStart) dropFront(frontMatch(_frames));
+  // "mañana recuérdame que tengo que ir al banco": what the date hid.
+  if (due != null && fromStart) {
+    dropFront(frontMatch(const [
+      ['que']
+    ]));
+    stripLeadIn();
+  }
 
   if (due != null) {
     while (folded.isNotEmpty && _trailingFillers.contains(folded.last)) {

@@ -188,25 +188,31 @@ matching is on folded words (lower-case, no accents, edge punctuation dropped). 
 - Trailing courtesy: "por favor", "porfa".
 - Requests (longest first): "me gustaria que", "quiero que", "quisiera que", "necesito que",
   "me puedes", "me podrias", "puedes", "podrias".
-- Frames (longest first): "tengo que", "hay que", "me gustaria", "debo", "necesito", "quiero",
+- Frames (longest first): "que no se me olvide", "no se me olvide", "que no se me pase", "no se me
+  pase", "tengo pendiente", "tengo que", "hay que", "me gustaria", "debo", "necesito", "quiero",
   "quisiera".
 - Triggers: "agrega", "agregar", "agregues", "agregue", "agregame", "anade", "anadir", "anadas",
   "anada", "anademe", "anota", "anotar", "anotes", "anote", "anotame", "recuerdame", "recuerdas",
-  "recuerdes", "recuerde", "recordar", "recordarme".
+  "recuerdes", "recuerde", "recordar", "recordarme", "agregas", "anades", "anotas", "acuerdame",
+  "apunta", "apuntar", "apuntes", "apunte", "apuntas", "apuntame", "ponme". Not triggers on purpose, as
+  they start real tasks: "pon", "poner", "acordar", "acordarme", "apuntarme".
 - Connectors (longest first): "la tarea de", "una tarea de", "la tarea para", "una tarea para",
-  "a mi lista", "a la lista", "la tarea", "una tarea", "que".
+  "(a|en) (mi|la) lista", each one optionally followed by "de pendientes", "de tareas" or "de compras"
+  (the longer form wins), "a mis pendientes", "a mis tareas", "la tarea", "una tarea", "que", "de".
 
 Steps, in this order:
 
 1. While the phrase ends with a trailing courtesy, remove it.
 2. While the phrase starts with an opener, remove it.
 3. Lead-in, all or nothing. From the start, in order: at most one request, then at most one frame, then
-   at most one "me", then a trigger is required. If the trigger is there, remove everything up to and
-   including it, and then at most one connector. If there is no trigger at that point, remove nothing
-   in this step.
+   at most one "me", then a trigger is required. A courtesy ("por favor", "porfa") may sit in front of
+   each of those parts and is skipped. If the trigger is there, remove everything up to and including
+   it, then a courtesy, then at most one connector, then a courtesy. If there is no trigger at that
+   point, remove nothing in this step.
 4. If the phrase now starts with a frame, remove it (once).
 5. Date detection as before: at the very end first, then at the very start.
-6. If the date was removed from the start, and the phrase now starts with a frame, remove it (once).
+6. If the date was removed from the start, remove a leading "que" if present, and then apply steps 2, 3
+   and 4 once more to what is left ("mañana recuérdame que tengo que pagar la luz").
 7. Trailing fillers, title clean-up, capital letter and the 200-character cut as before. An empty title
    is still "no task".
 

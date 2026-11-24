@@ -70,6 +70,46 @@ void main() {
     });
   });
 
+  group('everyday ways of asking (fix round 1)', () {
+    test('courtesy, list connectors, more verbs and frames, date first', () {
+      expectTask('agrega por favor comprar leche', 'Comprar leche');
+      expectTask('anota por favor que compre leche', 'Compre leche');
+      expectTask('puedes por favor agregar leche', 'Leche');
+      expectTask('me puedes agregar por favor leche', 'Leche');
+      expectTask('quiero que por favor agregues leche', 'Leche');
+      expectTask('agrega a mi lista de pendientes comprar leche', 'Comprar leche');
+      expectTask('agrega a la lista de compras leche', 'Leche');
+      expectTask('agrega a mis pendientes comprar leche', 'Comprar leche');
+      expectTask('anota en mi lista pagar la luz mañana', 'Pagar la luz', tomorrow);
+      expectTask('recuérdame de pagar la luz', 'Pagar la luz');
+      expectTask('acuérdame de pagar la luz el viernes', 'Pagar la luz', tomorrow);
+      expectTask('me anotas comprar leche', 'Comprar leche');
+      expectTask('me agregas comprar leche', 'Comprar leche');
+      expectTask('apúntame comprar leche', 'Comprar leche');
+      expectTask('me puedes apuntar comprar leche', 'Comprar leche');
+      expectTask('ponme comprar leche mañana', 'Comprar leche', tomorrow);
+      expectTask('que no se me olvide pagar la luz', 'Pagar la luz');
+      expectTask('no se me olvide pagar la luz', 'Pagar la luz');
+      expectTask('que no se me pase pagar la luz', 'Pagar la luz');
+      expectTask('tengo pendiente pagar la luz', 'Pagar la luz');
+      expectTask('recuérdame mañana que tengo que pagar la luz', 'Pagar la luz', tomorrow);
+      expectTask('recuérdame el viernes que tengo que pagar la luz', 'Pagar la luz', tomorrow);
+      expectTask('mañana agrega comprar leche', 'Comprar leche', tomorrow);
+      expectTask('mañana recuérdame pagar la luz', 'Pagar la luz', tomorrow);
+      expectTask('hoy quiero agregar comprar leche', 'Comprar leche', today);
+      expectTask('por favor mañana agrega leche', 'Leche', tomorrow);
+    });
+
+    test('still not removed', () {
+      expectTask('pon la lavadora', 'Pon la lavadora');
+      expectTask('apuntarme al gimnasio', 'Apuntarme al gimnasio');
+      expectTask('acordar el precio con el plomero', 'Acordar el precio con el plomero');
+      expectTask('de compras con mamá', 'De compras con mamá');
+      expectTask('ir de compras mañana', 'Ir de compras', tomorrow);
+      expectTask('puedes por favor comprar leche', 'Puedes por favor comprar leche');
+    });
+  });
+
   test('no task', () {
     for (final heard in [
       'quiero',
