@@ -5,6 +5,7 @@ import 'package:asistente_voz/assistant/mute_setting.dart';
 import 'package:asistente_voz/assistant/speech_input.dart';
 import 'package:asistente_voz/assistant/voice_output.dart';
 import 'package:asistente_voz/home/home_screen.dart';
+import 'package:asistente_voz/tasks/date_label.dart';
 import 'package:asistente_voz/tasks/task.dart';
 import 'package:asistente_voz/tasks/task_repository.dart';
 import 'package:material_ui/material_ui.dart';
@@ -193,5 +194,44 @@ void main() {
       find.text('Aún no tienes tareas. Ve al Asistente y dicta la primera.'),
       findsNothing,
     );
+  });
+
+  testWidgets('header shows the title and today\'s date, without an app bar', (
+    tester,
+  ) async {
+    await _pump(tester);
+    expect(find.text('Asistente de tareas'), findsOneWidget);
+    expect(find.text(headerDateLabel(DateTime.now())), findsOneWidget);
+    expect(find.byType(AppBar), findsNothing);
+  });
+
+  testWidgets('fits 320 x 568 at text scale 1.3', (tester) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _FakeRepository();
+    addTearDown(repo.controller.close);
+    SharedPreferences.setMockInitialValues({});
+    final mute = MuteSetting(await SharedPreferences.getInstance());
+    addTearDown(mute.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: const TextScaler.linear(1.3)),
+          child: child!,
+        ),
+        home: HomeScreen(
+          tasks: repo,
+          onSignOut: () {},
+          speech: _FakeSpeech(),
+          voice: _FakeVoice(),
+          mute: mute,
+        ),
+      ),
+    );
+    repo.controller.add([_task('1'), _task('2')]);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 }

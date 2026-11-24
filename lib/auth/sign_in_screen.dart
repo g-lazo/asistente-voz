@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../theme/noche.dart';
 import 'auth_errors.dart';
 
 /// Email and password form that doubles as sign-up through a toggle.
@@ -69,66 +70,111 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final label = _signUp ? 'Crear cuenta' : 'Iniciar sesión';
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Asistente de tareas',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  TextField(
-                    key: const Key('email'),
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Correo'),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    key: const Key('password'),
-                    controller: _password,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Contraseña'),
-                  ),
-                  if (_error != null) ...[
-                    const SizedBox(height: 12),
+      body: NocheBackground(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: Noche.accent,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Noche.violet.withValues(alpha: 0.5),
+                              blurRadius: 22,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.mic,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Text(
-                      _error!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+                      'Asistente de tareas',
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
+                            color: Noche.text,
+                            fontWeight: FontWeight.w700,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: Noche.panel(radius: 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextField(
+                            key: const Key('email'),
+                            controller: _email,
+                            keyboardType: TextInputType.emailAddress,
+                            style: const TextStyle(color: Noche.text),
+                            decoration: const InputDecoration(
+                              labelText: 'Correo',
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            key: const Key('password'),
+                            controller: _password,
+                            obscureText: true,
+                            style: const TextStyle(color: Noche.text),
+                            decoration: const InputDecoration(
+                              labelText: 'Contraseña',
+                            ),
+                          ),
+                          if (_error != null) ...[
+                            const SizedBox(height: 12),
+                            Text(
+                              _error!,
+                              style: TextStyle(color: scheme.error),
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          FilledButton(
+                            key: const Key('submit'),
+                            onPressed: _busy ? null : _submit,
+                            child: Text(label),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      key: const Key('toggleMode'),
+                      onPressed: _busy
+                          ? null
+                          : () => setState(() {
+                              _signUp = !_signUp;
+                              _error = null;
+                            }),
+                      child: Text(
+                        _signUp
+                            ? 'Ya tengo cuenta'
+                            : 'No tengo cuenta, crear una',
                       ),
                     ),
                   ],
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    key: const Key('submit'),
-                    onPressed: _busy ? null : _submit,
-                    child: Text(label),
-                  ),
-                  TextButton(
-                    key: const Key('toggleMode'),
-                    onPressed: _busy
-                        ? null
-                        : () => setState(() {
-                            _signUp = !_signUp;
-                            _error = null;
-                          }),
-                    child: Text(
-                      _signUp
-                          ? 'Ya tengo cuenta'
-                          : 'No tengo cuenta, crear una',
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

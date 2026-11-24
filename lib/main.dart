@@ -13,6 +13,7 @@ import 'auth/sign_in_screen.dart';
 import 'firebase_options.dart';
 import 'home/home_screen.dart';
 import 'tasks/task_repository.dart';
+import 'theme/noche.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,17 +29,12 @@ Future<void> main() async {
   runApp(
     MaterialApp(
       title: 'Asistente de tareas',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: const Color(0xFF3B6FD8),
-      ),
+      theme: nocheTheme(),
       debugShowCheckedModeBanner: false,
       home: AuthGate(
         uid: auth.userChanges.map((u) => u?.uid),
-        signedOut: (_) => SignInScreen(
-          onSignIn: auth.signIn,
-          onSignUp: auth.signUp,
-        ),
+        signedOut: (_) =>
+            SignInScreen(onSignIn: auth.signIn, onSignUp: auth.signUp),
         signedIn: (_, uid) => HomeScreen(
           tasks: FirestoreTaskRepository(FirebaseFirestore.instance, uid),
           onSignOut: auth.signOut,

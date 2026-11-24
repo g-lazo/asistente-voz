@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../theme/noche.dart';
 import 'assistant_controller.dart';
 
 class AssistantTab extends StatelessWidget {
@@ -9,7 +10,6 @@ class AssistantTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
@@ -38,7 +38,8 @@ class AssistantTab extends StatelessWidget {
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    style: Theme.of(context).textTheme.bodyLarge
+                        ?.copyWith(color: Noche.text),
                   ),
                 ),
               ),
@@ -50,7 +51,7 @@ class AssistantTab extends StatelessWidget {
                   key: const Key('hint'),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium
-                      ?.copyWith(color: scheme.onSurfaceVariant),
+                      ?.copyWith(color: Noche.textMuted),
                 ),
               ),
             ],
@@ -68,7 +69,6 @@ class _Bubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final fromUser = message.fromUser;
     const round = Radius.circular(18);
     const tail = Radius.circular(4);
@@ -80,19 +80,22 @@ class _Bubble extends StatelessWidget {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * 0.8,
         ),
-        decoration: BoxDecoration(
-          color: fromUser ? scheme.primary : scheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.only(
-            topLeft: round,
-            topRight: round,
-            bottomLeft: fromUser ? round : tail,
-            bottomRight: fromUser ? tail : round,
-          ),
-        ),
+        decoration:
+            (fromUser
+                    ? const BoxDecoration(gradient: Noche.accent)
+                    : Noche.panel())
+                .copyWith(
+                  borderRadius: BorderRadius.only(
+                    topLeft: round,
+                    topRight: round,
+                    bottomLeft: fromUser ? round : tail,
+                    bottomRight: fromUser ? tail : round,
+                  ),
+                ),
         child: Text(
           message.text,
           style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: fromUser ? scheme.onPrimary : scheme.onSurface),
+              ?.copyWith(color: Noche.text),
         ),
       ),
     );
@@ -120,9 +123,7 @@ class _MicButtonState extends State<_MicButton> {
     final listening = state == MicState.listening;
     final armed = state == MicState.cancelArmed;
     final size = listening || armed ? 96.0 : 72.0;
-    final fill = armed ? scheme.error : scheme.primary;
-    final onFill = armed ? scheme.onError : scheme.onPrimary;
-    final halo = armed ? scheme.errorContainer : scheme.primaryContainer;
+    final glow = armed ? scheme.error : Noche.violet;
     return Semantics(
       button: true,
       label: 'Micrófono',
@@ -150,20 +151,33 @@ class _MicButtonState extends State<_MicButton> {
                 width: size + 24,
                 height: size + 24,
                 alignment: Alignment.center,
+                // The ring is always there; it gets stronger while listening.
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: listening || armed ? halo : null,
+                  color: glow.withValues(
+                    alpha: listening || armed ? 0.3 : 0.18,
+                  ),
                 ),
                 child: Container(
                   width: size,
                   height: size,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: fill,
+                    gradient: armed ? null : Noche.accent,
+                    color: armed ? scheme.error : null,
+                    boxShadow: [
+                      BoxShadow(
+                        color: glow.withValues(
+                          alpha: listening || armed ? 0.75 : 0.5,
+                        ),
+                        blurRadius: listening || armed ? 34 : 22,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Icon(
                     armed ? Icons.close : Icons.mic,
-                    color: onFill,
+                    color: Colors.white,
                     size: size * 0.45,
                   ),
                 ),

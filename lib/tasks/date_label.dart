@@ -34,3 +34,9 @@ String shortDateLabel(DateTime d) =>
 /// "viernes 20 de noviembre".
 String longDateLabel(DateTime d) =>
     '${_longDays[d.weekday - 1]} ${d.day} de ${_longMonths[d.month - 1]}';
+
+/// "Viernes 20 de noviembre": the long label for the home header.
+String headerDateLabel(DateTime d) {
+  final label = longDateLabel(d);
+  return '${label[0].toUpperCase()}${label.substring(1)}';
+}

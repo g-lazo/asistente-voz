@@ -131,4 +131,22 @@ void main() {
     await tester.pump();
     expect(submitEnabled(tester), isTrue);
   });
+
+  testWidgets('fits 320 x 568 in sign-up mode with an error shown', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pumpScreen(
+      tester,
+      onSignIn: (e, p) async {},
+      onSignUp: (e, p) async {},
+    );
+    await tester.tap(find.byKey(const Key('toggleMode')));
+    await tester.pump();
+    await fillAndSubmit(tester, 'gustavo', '123456');
+    expect(find.text('Escribe un correo válido.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -11,4 +11,14 @@ void main() {
     expect(longDateLabel(DateTime(2026, 11, 20)), 'viernes 20 de noviembre');
     expect(longDateLabel(DateTime(2026, 11, 25)), 'miércoles 25 de noviembre');
   });
+
+  test('header label starts with a capital letter', () {
+    expect(headerDateLabel(DateTime(2026, 11, 24)), 'Martes 24 de noviembre');
+    expect(
+      headerDateLabel(DateTime(2026, 11, 25)),
+      'Miércoles 25 de noviembre',
+    );
+    expect(headerDateLabel(DateTime(2026, 11, 28)), 'Sábado 28 de noviembre');
+    expect(headerDateLabel(DateTime(2027, 1, 4)), 'Lunes 4 de enero');
+  });
 }
