@@ -29,10 +29,12 @@ class _ProbeState extends State<_Probe> {
 void main() {
   late StreamController<String?> controller;
   late int inits;
+  late List<String> builtFor;
 
   setUp(() {
     controller = StreamController<String?>();
     inits = 0;
+    builtFor = [];
   });
 
   tearDown(() => controller.close());
@@ -43,7 +45,10 @@ void main() {
         home: AuthGate(
           uid: controller.stream,
           signedOut: (_) => const Text('out'),
-          signedIn: (_, uid) => _Probe(uid: uid, onInit: () => inits++),
+          signedIn: (_, uid) {
+            builtFor.add(uid);
+            return _Probe(uid: uid, onInit: () => inits++);
+          },
         ),
       ),
     );
@@ -107,5 +112,67 @@ void main() {
     controller.addError(StateError('boom'));
     await tester.pump();
     expect(find.text('out'), findsOneWidget);
+  });
+
+  testWidgets('the same uid again builds the signed-in widget once',
+      (tester) async {
+    await pumpGate(tester);
+    controller.add('u1');
+    await tester.pump();
+    controller.add('u1');
+    await tester.pump();
+    expect(builtFor, ['u1']);
+    expect(inits, 1);
+  });
+
+  testWidgets('a rebuild of the parent does not build it again',
+      (tester) async {
+    late StateSetter rebuild;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (context, setState) {
+            rebuild = setState;
+            return AuthGate(
+              uid: controller.stream,
+              signedOut: (_) => const Text('out'),
+              signedIn: (_, uid) {
+                builtFor.add(uid);
+                return _Probe(uid: uid, onInit: () => inits++);
+              },
+            );
+          },
+        ),
+      ),
+    );
+    controller.add('u1');
+    await tester.pump();
+    rebuild(() {});
+    await tester.pump();
+    expect(find.text('in:u1'), findsOneWidget);
+    expect(builtFor, ['u1']);
+  });
+
+  testWidgets('another uid builds it again with that uid', (tester) async {
+    await pumpGate(tester);
+    controller.add('u1');
+    await tester.pump();
+    controller.add('u2');
+    await tester.pump();
+    expect(builtFor, ['u1', 'u2']);
+  });
+
+  testWidgets('the same uid after a sign-out builds it again',
+      (tester) async {
+    await pumpGate(tester);
+    controller.add('u1');
+    await tester.pump();
+    controller.add(null);
+    await tester.pump();
+    controller.add('u1');
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('in:u1'), findsOneWidget);
+    expect(builtFor, ['u1', 'u1']);
   });
 }

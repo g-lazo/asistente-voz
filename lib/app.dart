@@ -27,8 +27,33 @@ class AuthGate extends StatelessWidget {
         }
         final id = snapshot.data;
         if (id == null) return signedOut(context);
-        return KeyedSubtree(key: ValueKey(id), child: signedIn(context, id));
+        return _SignedInScope(
+          key: ValueKey(id),
+          uid: id,
+          builder: signedIn,
+        );
       },
     );
+  }
+}
+
+/// Calls [builder] once, when its state is created, and keeps the result. The
+/// gate keys it by uid, so repeated events and parent rebuilds reuse the child.
+class _SignedInScope extends StatefulWidget {
+  const _SignedInScope({super.key, required this.uid, required this.builder});
+
+  final String uid;
+  final Widget Function(BuildContext context, String uid) builder;
+
+  @override
+  State<_SignedInScope> createState() => _SignedInScopeState();
+}
+
+class _SignedInScopeState extends State<_SignedInScope> {
+  Widget? _child;
+
+  @override
+  Widget build(BuildContext context) {
+    return _child ??= widget.builder(context, widget.uid);
   }
 }
