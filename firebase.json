@@ -1,0 +1,25 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "asistente-de-voz-dce2c",
+          "appId": "1:440699707637:android:37c8fb5c74d2a9992be5bc",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "asistente-de-voz-dce2c",
+          "configurations": {
+            "android": "1:440699707637:android:37c8fb5c74d2a9992be5bc",
+            "web": "1:440699707637:web:9510bc1b652012bc2be5bc"
+          }
+        }
+      }
+    }
+  }
+}

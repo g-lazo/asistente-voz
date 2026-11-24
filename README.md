@@ -59,7 +59,9 @@ in the Docker image. Every command below goes through `make` or `docker compose 
 
 6. Deploy the Firestore security rules (`firestore.rules`): a signed-in user can read and write only
    the documents under their own `users/{uid}`. First select the project for the Firebase CLI, which
-   records it for the deploy. The deploy changes the live project.
+   records it for the deploy. The repository already points at the author's project through
+   `.firebaserc`; `firebase use <your-project-id>` switches it to yours. The deploy changes the live
+   project.
 
    ```
    docker compose exec dev firebase use <your-project-id>
