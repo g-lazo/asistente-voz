@@ -116,8 +116,9 @@ He also approved, as proposed to him, everything in section 8 that is not marked
 ### 8.3 Assistant tab
 
 - It opens with one assistant bubble that explains what to do, for example: "Hola. Mantén presionado
-  el micrófono y dime qué quieres anotar." This replaces the suggestion chips Gustavo left out, so a
-  first-time user is not lost. The exact wording is the builder's call.
+  el micrófono y dime qué quieres anotar. Por ejemplo: "agrega comprar leche mañana"." This replaces
+  the suggestion chips Gustavo left out, so a first-time user is not lost. Since 2026-11-24 the
+  greeting must contain one example phrase, which the parser turns into a task with a due date.
 - The microphone button sits at the bottom centre, with a hint under it.
   - Idle hint: "Mantén presionado para hablar".
   - While held: "Suelta para enviar · desliza a la izquierda para cancelar".

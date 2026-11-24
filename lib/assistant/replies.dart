@@ -2,7 +2,8 @@ import '../tasks/date_label.dart';
 import 'command_parser.dart';
 
 const greeting =
-    'Hola. Mantén presionado el micrófono y dime qué quieres anotar.';
+    'Hola. Mantén presionado el micrófono y dime qué quieres anotar. '
+    'Por ejemplo: "agrega comprar leche mañana".';
 const replyNotUnderstood = 'No te entendí, inténtalo otra vez.';
 const replySaveFailed =
     'No pude guardar la tarea. Revisa tu conexión e inténtalo otra vez.';

@@ -23,4 +23,13 @@ void main() {
     expect(spokenText(replySaved(plain, 4)),
         'Listo, agregué Comprar leche. Llevas 4 pendientes.');
   });
+
+  test('greeting holds one example the parser turns into a dated task', () {
+    final quoted = RegExp(r'"([^"]*)"').allMatches(greeting).toList();
+    expect(quoted, hasLength(1));
+    final task = parseCommand(quoted.single.group(1)!, DateTime(2026, 11, 19));
+    expect(task, isNotNull);
+    expect(task!.title, 'Comprar leche');
+    expect(task.dueDate, DateTime(2026, 11, 20));
+  });
 }
