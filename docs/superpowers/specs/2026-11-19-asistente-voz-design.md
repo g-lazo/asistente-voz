@@ -2,7 +2,7 @@
 
 Date: 2026-11-19
 Owner: Gustavo Lazo
-Status: draft, waiting for Gustavo's approval
+Status: approved by Gustavo on 2026-11-19 and built
 
 ## 1. Context
 

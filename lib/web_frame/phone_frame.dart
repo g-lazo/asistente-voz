@@ -7,8 +7,10 @@ import '../theme/noche.dart';
 ///
 /// The phone is shrunk with a [FittedBox] when the window is short, never
 /// enlarged. [FittedBox] scales through a transform that takes part in hit
-/// testing, so local pointer positions and deltas stay in the child's own
-/// 390 x 844 logical pixels; on screen the same gesture covers less distance.
+/// testing, so taps and drags land on the right widget. The microphone
+/// measures its slide-to-cancel distance with `PointerEvent.position`, which
+/// is in window pixels, so its 80-pixel threshold is 80 window pixels at any
+/// scale.
 class PhoneFrame extends StatelessWidget {
   const PhoneFrame({super.key, required this.enabled, required this.child});
 

@@ -60,7 +60,8 @@ tarea" in Chrome and it was recognized in Spanish, word for word. The reply as s
 voice was not recorded here; the Spanish voice was checked only by the runtime check above. The
 retest also showed that the app saved the whole phrase as the task title, because the phrase parser
 at that time only removed a leading "agrega", "añade", "anota" or "recuérdame"; that is a parser
-matter, not a speech one.
+matter, not a speech one. The parser was extended the same day (commits `5642752` and `4226170`)
+and that phrase now gives the task "Hacer la tarea".
 
 ## Decision
 

@@ -19,10 +19,10 @@ abstract class SpeechInput {
   Future<void> cancel();
 }
 
-/// Joins what the recognizer reports across restarts of its session: finished
-/// segments plus the one still being spoken.
 final _whitespace = RegExp(r'\s+');
 
+/// Joins what the recognizer reports across restarts of its session: finished
+/// segments plus the one still being spoken.
 class TranscriptAccumulator {
   final _finished = <String>[];
   String _current = '';

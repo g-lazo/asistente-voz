@@ -10,12 +10,12 @@ codebase. The user interface is in Spanish (Mexico).
 
 ## Screenshots
 
-The web version, drawn inside its phone frame: the sign-in screen, the assistant after two dictated
-tasks, and the task list.
+The web version, drawn inside its phone frame: the sign-in screen, the assistant after adding two
+tasks, and the task list (sample data).
 
 | Sign-in | Assistant | Tasks |
 |---------|-----------|-------|
-| <img src="docs/screenshots/sign-in.png" width="240" alt="Sign-in screen"> | <img src="docs/screenshots/assistant.png" width="240" alt="Assistant tab after two dictated tasks"> | <img src="docs/screenshots/tasks.png" width="240" alt="Task list with pending and done tasks"> |
+| <img src="docs/screenshots/sign-in.png" width="240" alt="Sign-in screen"> | <img src="docs/screenshots/assistant.png" width="240" alt="Assistant tab after adding two tasks"> | <img src="docs/screenshots/tasks.png" width="240" alt="Task list with pending and done tasks"> |
 
 ## Requirements
 
@@ -159,6 +159,9 @@ need a human and are in the manual checklist.
 
 - No iOS build: it needs macOS, which this project does not have.
 - On the web, voice works only in Chrome.
+- On the web, if the microphone is blocked in Chrome the assistant answers "No te entendí,
+  inténtalo otra vez." instead of asking for the permission, because Chrome does not report the
+  block to the app; allow the microphone for the page first.
 - Dates have no time of day. "a las cinco" stays in the task text, and there are no reminders or
   notifications.
 - The only voice command is adding a task. Completing, deleting and editing a task are done by hand
