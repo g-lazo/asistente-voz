@@ -72,7 +72,7 @@ class AssistantController extends ChangeNotifier {
     MicState.listening =>
       'Suelta para enviar · desliza a la izquierda para cancelar',
     MicState.cancelArmed => 'Suelta para cancelar',
-    MicState.busy => 'Guardando...',
+    MicState.busy => 'Procesando...',
   };
 
   void _notify() {

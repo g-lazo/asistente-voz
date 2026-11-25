@@ -257,7 +257,7 @@ void main() {
     final end = rig.controller.pressEnd();
     await Future<void>.delayed(Duration.zero);
     expect(rig.controller.state, MicState.busy);
-    expect(rig.controller.hint, 'Guardando...');
+    expect(rig.controller.hint, 'Procesando...');
 
     await rig.controller.pressStart();
     expect(rig.speech.starts, 1);
