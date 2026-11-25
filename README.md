@@ -87,17 +87,25 @@ Then open `http://localhost:8080` in Chrome and allow the microphone when asked.
 the microphone on localhost or HTTPS, and the speech recognition is Chrome's own, so this does not
 work in other browsers.
 
+In a window at least 600 pixels wide the app is drawn inside a phone frame: a 390 x 844 screen,
+scaled down when the window is too short and never scaled up. A narrower window, such as a real
+phone's browser, shows the app full-screen, as on Android.
+
 ## Talking to it
 
-Create an account on the sign-in screen ("Crear cuenta"), then on the "Asistente" tab hold the
+Create an account on the sign-in screen (the link "No tengo cuenta, crear una" switches the form to
+account creation, and the button then reads "Crear cuenta"), then on the "Asistente" tab hold the
 microphone button, speak, and release. Slide to the left before releasing to cancel: nothing is
 saved. In the emulator and in Chrome the same gesture is done with the mouse. The tasks appear in the
-"Mis tareas" tab as they are saved. The mute button in the app bar turns the spoken answers off.
+"Mis tareas" tab as they are saved: they are listed as cards under "Pendientes" and "Hechas", and a
+task with a date shows a chip that reads "Hoy", "Mañana", "Ayer" or a short date such as "Vie 27 nov",
+in red when the task is overdue. The round mute button in the header turns the spoken answers off.
 
 You can say the task naturally. A polite or lead-in start ("por favor", "quiero que añadas que",
 "puedes agregar", "necesito", "tengo que") and the verbs agregar, añadir, anotar and recordar in their
-common forms are removed, and what is left is the task. Saying only the task works too. A date phrase is removed from the task text and
-stored as its due date. Examples, with today being Thursday 19 November 2026:
+common forms are removed, and what is left is the task. Saying only the task works too. A date
+phrase is removed from the task text and stored as its due date. Examples, with today being Thursday
+19 November 2026:
 
 | You say | Task | Due date |
 |---------|------|----------|
