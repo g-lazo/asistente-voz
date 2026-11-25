@@ -1,11 +1,11 @@
 {
-    "name": "asistente_voz",
-    "short_name": "asistente_voz",
+    "name": "Asistente de tareas",
+    "short_name": "Asistente de tareas",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#07080F",
+    "theme_color": "#0E0F1C",
+    "description": "Asistente de voz para tareas cotidianas",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
