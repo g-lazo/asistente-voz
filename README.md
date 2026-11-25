@@ -8,6 +8,15 @@ in text and out loud, and understands simple Spanish dates ("el viernes", "pasad
 The app runs as an Android app (in an emulator) and as a web app (in Chrome) from one Flutter
 codebase. The user interface is in Spanish (Mexico).
 
+## Screenshots
+
+The web version, drawn inside its phone frame: the sign-in screen, the assistant after two dictated
+tasks, and the task list.
+
+| Sign-in | Assistant | Tasks |
+|---------|-----------|-------|
+| <img src="docs/screenshots/sign-in.png" width="240" alt="Sign-in screen"> | <img src="docs/screenshots/assistant.png" width="240" alt="Assistant tab after two dictated tasks"> | <img src="docs/screenshots/tasks.png" width="240" alt="Task list with pending and done tasks"> |
+
 ## Requirements
 
 - Docker with Docker Compose, on a Linux desktop with an X server (the emulator window opens on the
