@@ -314,6 +314,14 @@ void main() {
     await end;
   });
 
+  test('dispose stops the voice, and a failing stop does not throw', () {
+    rig.controller.dispose();
+    expect(rig.voice.stops, 1);
+
+    final r = Rig(customVoice: SyncThrowingVoice());
+    expect(r.controller.dispose, returnsNormally);
+  });
+
   test('muting stops the voice, unmuting does not', () {
     rig.muted.value = true;
     expect(rig.voice.stops, 1);

@@ -248,6 +248,8 @@ class AssistantController extends ChangeNotifier {
     if (_state == MicState.listening || _state == MicState.cancelArmed) {
       _cancelSpeech();
     }
+    // A reply still being spoken must not keep playing after sign-out.
+    Future.sync(_voice.stop).catchError((Object _) {});
     _cancelledTimer?.cancel();
     _subscription.cancel();
     super.dispose();

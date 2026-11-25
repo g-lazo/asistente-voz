@@ -127,6 +127,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             key: const Key('email'),
                             controller: _email,
                             keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
                             style: const TextStyle(color: Noche.text),
                             decoration: const InputDecoration(
                               labelText: 'Correo',
@@ -137,6 +138,10 @@ class _SignInScreenState extends State<SignInScreen> {
                             key: const Key('password'),
                             controller: _password,
                             obscureText: true,
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (_) {
+                              if (!_busy) _submit();
+                            },
                             style: const TextStyle(color: Noche.text),
                             decoration: const InputDecoration(
                               labelText: 'Contraseña',

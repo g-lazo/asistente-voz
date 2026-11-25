@@ -132,6 +132,34 @@ void main() {
     expect(submitEnabled(tester), isTrue);
   });
 
+  testWidgets('the done action on the password field submits once', (
+    tester,
+  ) async {
+    final got = <(String, String)>[];
+    final pending = Completer<void>();
+    await pumpScreen(
+      tester,
+      onSignIn: (e, p) {
+        got.add((e, p));
+        return pending.future;
+      },
+      onSignUp: (e, p) async {},
+    );
+    await tester.enterText(find.byKey(const Key('email')), 'a@b.mx');
+    await tester.enterText(find.byKey(const Key('password')), '123456');
+    await tester.tap(find.byKey(const Key('password')));
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(got, [('a@b.mx', '123456')]);
+
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(got, hasLength(1));
+
+    pending.complete();
+    await tester.pump();
+  });
+
   testWidgets('fits 320 x 568 in sign-up mode with an error shown', (
     tester,
   ) async {
